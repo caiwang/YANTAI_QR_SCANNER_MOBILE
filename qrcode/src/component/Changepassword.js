@@ -109,6 +109,9 @@ class Changepassword extends React.Component{
       if (res.data==true) {
           this.setState({useralert:'修改成功'})
       };
+      if (res.data==false) {
+          this.setState({useralert:'修改失败，请重新检查后再次输入'})
+      };
     }
     changeerr(err){
        console.log(" ");
