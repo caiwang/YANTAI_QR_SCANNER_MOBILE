@@ -2,7 +2,7 @@ import React,{component,PropTypes}from 'react'
 import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,TouchableNativeFeedback} from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import axios from 'axios';
-import {url} from '../config';
+import {url} from '../config'
 class Login extends React.Component{
   constructor(props){
         super(props)
@@ -19,7 +19,7 @@ class Login extends React.Component{
 
   }
 
-  login(){
+  login=()=>{
     try{
         this.setState({alert:''})
         let admin=this.state.admin;
@@ -46,29 +46,29 @@ class Login extends React.Component{
         }
 
         let data={
-          name:admin,
-          password:password,
+          client_id:'client2',
+          client_secret:'secret',
+          username:this.state.admin,
+          password:this.state.password,
+          grant_type:'password',
           }
-       
-        axios.post(`${url}/UserInfo/Login`,data)
+        //console.log(data)
+        axios.post(`${url}/connect/token`,data)
         .then(res=>this.loginok(res))
-        .catch(err=>this.loginerr(err))
+        .catch(err=>this.errback(err))
       }catch(e){
         console.log(e);
       }
     }
+
+    
   
     loginok(res){
-    
-    if (res.data.code==2) {Actions.Shipment()};
-    if (res.data.code==1) {this.setState({alert:'用户名密码不匹配'});};
-    if (res.data.code==0) {this.setState({alert:'用户名不存在'}); };
-
-
-      
+      console.log("111",res)
+      Actions.Shipment()
     }
-    loginerr(err){
-      console.log("err",err)
+    errback(err){
+      console.log("222",err)
     }
 
 
@@ -98,12 +98,14 @@ class Login extends React.Component{
         <View style={styles.admin}>
            <View><Text style={styles.textfont}>账号:</Text></View>
            <View><TextInput autoFocus={this.state.autoFocus} placeholder='admin' placeholderTextColor="#888" maxLength={20} style={styles.contentfont}  onChangeText={(admin)=>{this.setState({admin:admin})}} value={admin} 
+           // onBlur={this.matchadmin.bind(this)}
            ></TextInput></View>
         </View>
 
         <View style={styles.admin}>
            <View><Text style={styles.textfont}>密码:</Text></View>
            <View><TextInput placeholder='password' placeholderTextColor="#888" maxLength={20} keyboardType='numeric' style={styles.contentfont}  secureTextEntry={true} onChangeText={(password)=>{this.setState({password:password})}} value={password} 
+           // onBlur={this.matchpassword.bind(this)}
            ></TextInput></View>
         </View>
 

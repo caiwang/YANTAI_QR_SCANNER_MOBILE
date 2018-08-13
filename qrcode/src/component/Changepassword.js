@@ -1,8 +1,11 @@
-import React from 'react'
-import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView} from 'react-native';
+import React,{component,PropTypes} from 'react'
+import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView, AsyncStorage} from 'react-native';
 import { Actions,Alert } from 'react-native-router-flux';
-
+import {url} from '../config';
+import axios from 'axios';
+// import Storage from 'react-native-storage';
 class Changepassword extends React.Component{
+
   constructor(props){
         super(props)
         this.state={
@@ -10,23 +13,24 @@ class Changepassword extends React.Component{
           userpassword:'',
           useralert:'',
           usernewpassword:'',
-          userconfirmpassword:''
+          userconfirmpassword:'',
+          disable:true,
+          useid:''
       }
       
   }
 
   componentDidMount(){
-
+        
   }
-   changepassword=()=>{
+    getuser=()=>{
+      try{
         this.setState({useralert:''})
         let useradmin=this.state.useradmin;
         let userpassword=this.state.userpassword;
-        let usernewpassword=this.state.usernewpassword;
-        let userconfirmpassword=this.state.userconfirmpassword;
 
-        let usermatchadmin=/^[A-Za-z]{6,20}$/;
-        let usermatchpassword=/^[0-9]{6}$/;
+        let usermatchadmin=/^[A-Za-z0-9]{5,20}$/;
+        let usermatchpassword=/^[0-9]{5,20}$/;
           
         if (!usermatchadmin.exec(useradmin)) {
             this.setState({useralert:'请正确输入6-20位字母组合的用户名'});
@@ -36,18 +40,48 @@ class Changepassword extends React.Component{
             this.setState({useralert:'请正确输入6位数字密码'});
             return false;
           }
-        if (!usermatchpassword.exec(usernewpassword)) {
-            this.setState({useralert:'请正确输入6位数字密码'});
-            return false;
-        }
+     
         let userpasswordset=new Set(userpassword)
-            console.log(userpasswordset)
         if (userpasswordset.size==1) {
             this.setState({useralert:'6位数字密码不能相同'});
             return false;
           }
+        let data={
+        name:useradmin,
+        password:userpassword,
+        }
+        axios.post(`${url}/UserInfo/Login`,data)
+        .then(res=>this.getuserok(res))
+        .catch(err=>this.getusererr(err))
+      }catch(err){
+        console.log(" ")
+      }
+    }
+
+    getuserok(res){ 
+    if (res.data.code==2) {this.setState({disable:false,useid:res.data.data.id})};
+    if (res.data.code==1) {this.setState({useralert:'用户名密码不匹配',disable:true});};
+    if (res.data.code==0) {this.setState({useralert:'用户名不存在',disable:true}); };             
+    }
+    getusererr(err){
+        console.log(err)
+    }
+
+    changepassword=()=>{
+    try{
+        this.setState({useralert:''})
+       
+        let usernewpassword=this.state.usernewpassword;
+        let userconfirmpassword=this.state.userconfirmpassword;
+
+        let usermatchpassword=/^[0-9]{5,20}$/;
+          
+        if (!usermatchpassword.exec(usernewpassword)) {
+            this.setState({useralert:'请正确输入新的6位数字密码'});
+            return false;
+        }
+   
         let usernewpasswordset=new Set(usernewpassword)
-            console.log(usernewpasswordset)
         if (usernewpasswordset.size==1) {
             this.setState({useralert:'6位数字密码不能相同'});
             return false;
@@ -56,10 +90,28 @@ class Changepassword extends React.Component{
           this.setState({useralert:'两次密码不一致，请检查后再次确认'});
             return false;
         };
-
-    
-    
-        
+       console.log(this.state.useid)
+        let data={
+          password:usernewpassword,
+          id:this.state.useid,
+          }
+       console.log(data)
+        axios.post(`${url}/UserInfo/ChangePassword`,data)
+        .then(res=>this.changeok(res))
+        .catch(err=>this.changeerr(err))
+      }catch(e){
+        console.log(e);
+      }
+      
+    }
+    changeok(res){
+      console.log('change',res)
+      if (res.data==true) {
+          this.setState({useralert:'修改成功'})
+      };
+    }
+    changeerr(err){
+       console.log(" ");
     }
   render(){
     return(       
@@ -72,11 +124,19 @@ class Changepassword extends React.Component{
                   <View style={styles.items}><Image style={{width:20,height:20}} source={require('../img/user.png')}/><Text style={styles.font}>用户名</Text><TextInput maxLength={20} style={styles.marginl} onChangeText={(useradmin)=>{this.setState({useradmin:useradmin})}} value={this.state.admin}
                   ></TextInput></View>
 
-                  <View style={styles.items}><Image style={{width:20,height:20}} source={require('../img/password.png')}/><Text style={styles.font}>密 码</Text><TextInput maxLength={6} keyboardType='numeric' secureTextEntry={true} style={styles.marginl} onChangeText={(userpassword)=>{this.setState({userpassword:userpassword})}}></TextInput></View>
+                  <View style={styles.items}><Image style={{width:20,height:20}} source={require('../img/password.png')}/><Text style={styles.font}>密 码</Text><TextInput maxLength={20} keyboardType='numeric' secureTextEntry={true} style={styles.marginl} onChangeText={(userpassword)=>{this.setState({userpassword:userpassword})}} ></TextInput></View>
 
-                  <View style={styles.items}><Image style={{width:20,height:20}} source={require('../img/new.png')}/><Text style={styles.font}>新密码</Text><TextInput maxLength={6} keyboardType='numeric' secureTextEntry={true} style={styles.marginl} onChangeText={(usernewpassword)=>{this.setState({usernewpassword:usernewpassword})}}></TextInput></View>
 
-                  <View style={styles.items}><Image style={{width:20,height:20}} source={require('../img/comfirm.png')}/><Text style={styles.font}>确认密码</Text><TextInput maxLength={6} keyboardType='numeric' secureTextEntry={true} style={styles.marginl} onChangeText={(userconfirmpassword)=>{this.setState({userconfirmpassword:userconfirmpassword})}}></TextInput></View>
+                  <View style={styles.adminn}>
+                  <View style={styles.adminbtnn}>
+                    <Button title="确 定" color="#4ea3f1" onPress={this.getuser.bind(this)}>确 定</Button>
+                  </View>
+                  </View>
+
+
+                  <View style={styles.items}><Image style={{width:20,height:20}} source={require('../img/new.png')}/><Text style={styles.font}>新密码</Text><TextInput maxLength={20} keyboardType='numeric' secureTextEntry={true} style={styles.marginl} onChangeText={(usernewpassword)=>{this.setState({usernewpassword:usernewpassword})}}></TextInput></View>
+
+                  <View style={styles.items}><Image style={{width:20,height:20}} source={require('../img/comfirm.png')}/><Text style={styles.font}>确认密码</Text><TextInput maxLength={20} keyboardType='numeric' secureTextEntry={true} style={styles.marginl} onChangeText={(userconfirmpassword)=>{this.setState({userconfirmpassword:userconfirmpassword})}}></TextInput></View>
                   
               </View>
 
@@ -86,7 +146,9 @@ class Changepassword extends React.Component{
 
               <View style={styles.adminn}>
                   <View style={styles.adminbtnn}>
-                    <Button title="确 定" color="#4ea3f1" onPress={this.changepassword.bind(this)}>确 定</Button>
+                    <Button title="确 定 修 改" color="#4ea3f1" disabled={this.state.disable} 
+                     onPress={this.changepassword.bind(this)}
+                    >确 定 修 改</Button>
                   </View>
              </View>
         

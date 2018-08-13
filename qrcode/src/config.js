@@ -1,5 +1,5 @@
 
-const url='http://192.168.40.245:5000/'
+const url='http://192.168.40.16:1460/api'
 export {url}
 
 
