@@ -26,7 +26,7 @@ class Shipment extends React.Component{
       let timestamp = Date.parse(new Date());
 
       axios.get(`${url}/invoice/GetListNoGroup?id=${idid}&&timestamp=${timestamp}`)
-      .then(res=>{this.setState({list:res.data,loading:false,show:true});if (res.data.length==0) {this.setState({showmessage:'待发运列表为空'})};})
+      .then(res=>{this.setState({list:res.data,loading:false});if (res.data.length==0) {this.setState({showmessage:'待发运列表为空'})};})
       .catch(err=>console.log(err))
 
     }
@@ -36,20 +36,20 @@ class Shipment extends React.Component{
     let textexec=/^[0-9]{1,20}$/;
     if (!textexec.exec(text)) {
         this.setState({
-          show:true,
-          showsearch:false
+          show:false,
+          showsearch:true
         })
         return false;
     };
     if (text.length>0) {
        this.setState({
-      show:false
+      show:true
       })
     };
     if (text.length==0) {
        this.setState({
-      show:true,
-      showsearch:false
+      show:false,
+      showsearch:true
       })
     };
     axios.get(`${url}/invoice/Query?query=${text}`)
@@ -59,7 +59,7 @@ class Shipment extends React.Component{
     sousuook(res){
       console.log('cx',res)
       this.setState({
-        showsearch:true,
+        showsearch:false,
         searchlist:res.data
       })
       console.log(this.state.searchlist)
@@ -94,29 +94,27 @@ class Shipment extends React.Component{
               */}
               {/*遍历列表*/}
               {
-
-                this.state.show?this.state.list.map((item,index)=>{
+                this.state.show?null:
+                this.state.list.map((item,index)=>{
                     return (
                   <View style={styles.items} key={index}>
                     <Text style={styles.font}  numberOfLines={1}>{index+1}.待发运列表:{item.no}
                     </Text>
                     <Text style={styles.fontxiangxi} onPress={this.QRcode.bind(this)} numberOfLines={1}>详细
                     </Text>
-                  </View> ) } ):null
-                
-
+                  </View> ) } )
               }
               {/*搜索结果*/}
               {
-                this.state.showsearch?this.state.searchlist.map((item,index)=>{
+                this.state.showsearch?null:
+                this.state.searchlist.map((item,index)=>{
                     return (
                   <View style={styles.items} key={index}>
                     <Text style={styles.font} numberOfLines={1}>{index+1}.待发运列表:{item.no}
                     </Text>
                     <Text style={styles.fontxiangxi} onPress={this.QRcode.bind(this)} numberOfLines={1}>详细
                     </Text>
-                  </View> ) } ):null
-                
+                  </View> ) } )
               }
 
             </ScrollView> 

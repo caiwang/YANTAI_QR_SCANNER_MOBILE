@@ -59,22 +59,29 @@ class Login extends React.Component{
     }
   
     loginok(res){
-    // console.log("id",res)
+    console.log("loginid",res)
     if (res.data.code==2&&res.data.data.rights[0].softName=="装车发运软件（烟台）") {
-      let ID=res.data.data.companyID;
-      // console.log(ID)
-      Actions.Shipment({ID})
-    }else{
-      this.setState({alert:'用户名密码不匹配'});
-    }
-    if (res.data.code==1) {this.setState({alert:'用户名密码不匹配'});};
-    if (res.data.code==0) {this.setState({alert:'用户名不存在'}); };
+      let CompanyID=res.data.data.companyID;
+      let timestamp = Date.parse(new Date());
 
+      axios.get(`${url}/invoice/GetListNoGroup?id=${CompanyID}&&timestamp=${timestamp}`)
+      .then(res=>this.loginokok(res))
+      .catch(err=>console.log(err))
 
       
+    }else{
+      this.setState({alert:'您没有权限使用该软件'});
+    }
+    if (res.data.code==1) {this.setState({alert:'用户名密码不匹配'});};
+    if (res.data.code==0) {this.setState({alert:'用户名不存在'}); };      
     }
     loginerr(err){
       console.log("err",err)
+    }
+    loginokok(res){
+     let list=res.data
+     Actions.Shipment({list})
+
     }
 
 
