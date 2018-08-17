@@ -1,21 +1,74 @@
 import React,{component,PropTypes} from 'react'
-import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView} from 'react-native';
+import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter} from 'react-native';
 import { Actions,Alert } from 'react-native-router-flux';
 import axios from 'axios';
 import {url} from '../config';
 import Loading from './Loading';
+const scanToastAndroid = NativeModules.ScanToastAndroid;
+
 class Message extends React.Component{
     constructor(props) {
       super(props);
       this.state={
-        loading:true
+        loading:true,
+        count:null,
+        obj: '',
+        no :'',
+        InvoiceTime :'',
+        orderNo:'',
+        OrderTime:'',
+        CustomerNo:'',
+        DealerName:'',
+        DealerPostcord :'',
+        DealerPlace:'',
+        ShipmentMode:'',
+        DeliveryMode:'',
+        PlateNumber:[],
+        DriverName:'',
+        DriverPhoneNo:'',
+        ShippingProject:'',
+        ShippingMaterials:'',
+        ShippingNumber:'',
+        ShippingDescribe:''
       };
     }
  
     componentDidMount(){
-      
+      const counts=new Array();
+      DeviceEventEmitter.addListener('EventName', (res) => {
+            this.setState({ obj: res });
+            let scanres=this.state.obj.SCAN;
+                counts.push(scanres);
+                alert(counts);
+            let countslength=counts.length;
+            this.setState({count:countslength})
+
+
+        });
+         this.setState({
+              no:this.props.listindex.no,
+              InvoiceTime :this.props.listindex.invoiceTime,
+              orderNo:this.props.listindex.orderNo,
+              OrderTime:this.props.listindex.orderTime,
+              CustomerNo:this.props.listindex.customerNo,
+              DealerName:this.props.listindex.dealerName,
+              DealerPostcord :this.props.listindex.dealerPostcord,
+              DealerPlace:this.props.listindex.dealerPlace,
+              ShipmentMode:this.props.listindex.shipmentMode,
+              DeliveryMode:this.props.listindex.deliveryMode,
+              PlateNumber:this.props.listindex.plateNumber,
+              DriverName:this.props.listindex.driverName,
+              DriverPhoneNo:this.props.listindex.driverPhoneNo,
+              ShippingProject:this.props.listindex.shippingProject,
+              ShippingMaterials:this.props.listindex.shippingMaterials,
+              ShippingNumber:this.props.listindex.shippingNumber,
+              ShippingDescribe:this.props.listindex.shippingDescribe
+          })
+
 
     }
+
+
     finish(){
       Actions.Shipment()
     }
@@ -25,33 +78,82 @@ class Message extends React.Component{
       
             <View style={styles.admin}>
                   <View style={styles.adminbtn}>
-                    <Button title="扫描二维码" color="#4ea3f1" onPress={()=>alert('好喜欢你！')}>扫描二维码</Button>
+                    <Button title="扫描二维码" color="#4ea3f1"
+                     onPress={() => scanToastAndroid.scanQRCode()}
+                     >扫描二维码</Button>
                   </View>
             </View>
 
             <View style={styles.itemss}>
                 <Text style={styles.fontwidth}>已读取二维码个数</Text>
-                <Text style={styles.fontwidth}> 5
-                </Text>
+                <Text style={styles.fontwidth}>{this.state.count}</Text>
             </View>
              
             <View>
-              <View style={styles.items}><Text style={styles.fontwidths}>交货订号</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>订单时间</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>订单编号</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>车牌号</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>装运项目</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>产品名称</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>产品规格</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>产品质量</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>发货数量</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>需求公司</Text><TextInput style={styles.inputwidth}></TextInput></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>发货地点</Text><TextInput style={styles.inputwidth}></TextInput></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>交货单号</Text><Text style={styles.inputwidth}>
+                  {this.state.no}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>发货时间</Text><Text style={styles.inputwidth}>
+                  {this.state.InvoiceTime}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>订单号</Text><Text style={styles.inputwidth}>
+                  {this.state.orderNo}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>订单日期</Text><Text style={styles.inputwidth}>
+                  {this.state.OrderTime}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>客户编号</Text><Text style={styles.inputwidth}>
+                  {this.state.CustomerNo}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>经销商名称</Text><Text style={styles.inputwidth}>
+                  {this.state.DealerName}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>经销商邮编</Text><Text style={styles.inputwidth}>
+                  {this.state.DealerPostcord}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>经销商地址</Text><Text style={styles.inputwidth}>
+                  {this.state.DealerPlace}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>装运方式</Text><Text style={styles.inputwidth}>
+                  {this.state.ShipmentMode}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>交货方式</Text><Text style={styles.inputwidth}>
+                  {this.state.DeliveryMode}
+              </Text></View>
+
+
+              <View style={styles.items}><Text style={styles.fontwidths}>车牌号</Text><Text style={styles.inputwidth}>
+                  {this.state.PlateNumber}
+              </Text></View>
+
+
+              <View style={styles.items}><Text style={styles.fontwidths}>司机名</Text><Text style={styles.inputwidth}>
+                  {this.state.DriverName }
+              </Text></View>
+               <View style={styles.items}><Text style={styles.fontwidths}>司机电话</Text><Text style={styles.inputwidth}>
+                  {this.state.DriverPhoneNo }
+              </Text></View>
+
+
+              <View style={styles.items}><Text style={styles.fontwidths}>装运项目</Text><Text style={styles.inputwidth}>
+                  {this.state.ShippingProject}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>装运物料</Text><Text style={styles.inputwidth}>
+                  {this.state.ShippingMaterials}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>装运数量</Text><Text style={styles.inputwidth}>
+                  {this.state.ShippingNumber}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>装运物料描述</Text><Text style={styles.inputwidth}>
+                  {this.state.ShippingDescribe}
+              </Text></View>
+
+              
             </View>
 
             <View style={styles.adminn}>
             <View style={styles.adminbtnn}>
-              <Button title="继续扫描" color="#4ea3f1" onPress={()=>alert('好喜欢你')}>继续扫描</Button>
+              <Button title="继续扫描" color="#4ea3f1" onPress={() => scanToastAndroid.scanQRCode()}>继续扫描</Button>
             </View>
             </View>
             <View style={styles.adminn}>
@@ -60,7 +162,7 @@ class Message extends React.Component{
               </View>
             </View>
             <View style={styles.adminn}>
-              <View style={[styles.adminbtnn,styles.adminbtnnleft]}>
+              <View style={styles.adminbtnn}>
                 <Button title="确定完成" color="#4ea3f1" onPress={this.finish.bind(this)}>确定完成</Button>
               </View>
             </View>
@@ -90,7 +192,7 @@ const styles={
       justifyContent:'center',
       alignItems:'center',
       height:0.1*height,
-      marginTop:20
+      marginTop:15
     },
      items:{
       flexDirection:'row',
@@ -100,16 +202,18 @@ const styles={
     },
      fontwidth:{
       width:0.4*width,
-      fontSize:15,
+      fontSize:16,
       textAlign:'left'
     },
      fontwidths:{
-      width:0.2*width,
-      fontSize:15,
+      width:0.3*width,
+      fontSize:16,
       textAlign:'left'
     },
     inputwidth:{
-      width:0.6*width
+      width:0.55*width,
+      borderBottomWidth:1,
+      borderBottomColor:'#aaa'
     },
 
     adminn:{
@@ -125,7 +229,7 @@ const styles={
 
   },
   adminbtnnleft:{
-     marginLeft:0.05*width
+     
 
   }
  

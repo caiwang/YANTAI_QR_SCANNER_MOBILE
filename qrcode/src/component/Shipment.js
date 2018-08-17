@@ -66,8 +66,10 @@ class Shipment extends React.Component{
     }
 
     // 详细按钮跳转
-    QRcode(){
-      Actions.Message()
+    QRcode(index){
+      console.log(index)
+      let listindex=this.state.list[index];
+      Actions.Message({listindex});
     }
  
   render(){
@@ -98,9 +100,9 @@ class Shipment extends React.Component{
                 this.state.show?this.state.list.map((item,index)=>{
                     return (
                   <View style={styles.items} key={index}>
-                    <Text style={styles.font}  numberOfLines={1}>{index+1}.待发运列表:{item.no}
+                    <Text style={styles.font}  numberOfLines={2}>{index+1}.待发运列表:{item.no}
                     </Text>
-                    <Text style={styles.fontxiangxi} onPress={this.QRcode.bind(this)} numberOfLines={1}>详细
+                    <Text style={styles.fontxiangxi} onPress={this.QRcode.bind(this,index)} numberOfLines={1}>详细信息
                     </Text>
                   </View> ) } ):null
                 
@@ -111,7 +113,7 @@ class Shipment extends React.Component{
                 this.state.showsearch?this.state.searchlist.map((item,index)=>{
                     return (
                   <View style={styles.items} key={index}>
-                    <Text style={styles.font} numberOfLines={1}>{index+1}.待发运列表:{item.no}
+                    <Text style={styles.font} numberOfLines={2}>{index+1}.待发运列表:{item.no}
                     </Text>
                     <Text style={styles.fontxiangxi} onPress={this.QRcode.bind(this)} numberOfLines={1}>详细
                     </Text>
