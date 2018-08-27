@@ -1,20 +1,19 @@
 import React,{component,PropTypes} from 'react'
-import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,AsyncStorage,Modal} from 'react-native';
+import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage} from 'react-native';
 import { Actions,Alert } from 'react-native-router-flux';
 import axios from 'axios';
 import {url} from '../config';
 import Loading from './Loading';
+const scanToastAndroid = NativeModules.ScanToastAndroid;
 class Message extends React.Component{
     constructor(props) {
       super(props);
       this.state={
-        arrlist:[],
-        wuliaobianhao:'',
-        wuliaomiaoshu:'',
-        saomiaogeshu:'',
-        modalVisible:false,
-        CodeListst:[],
+        Text:'未关联发货单',
+        CodeList:[],
         loading:true,
+        count:null,
+        obj: '',
         no :'',
         InvoiceTime :'',
         orderNo:'',
@@ -32,11 +31,52 @@ class Message extends React.Component{
         ShippingMaterials:'',
         ShippingNumber:'',
         ShippingDescribe:''
-       
       };
     }
+ 
     componentDidMount(){
-      this.setState({
+      // try{
+      //     AsyncStorage.getItem(key,(error,result)=>{
+      //         alert(result); 
+      //     })
+      // }catch(err){
+
+      // }
+      
+      const counts=new Array();
+      DeviceEventEmitter.addListener('EventName', (res) => {
+            this.setState({ obj: res });
+            let scanres=this.state.obj.SCAN;
+                counts.push(scanres);
+                alert(counts);
+
+            let countsset=new Set(counts);
+            // alert(countsset);
+            let countslength=countsset.size;
+            this.setState({count:countslength,CodeList:counts});
+
+            // alert(this.props.listindex.id);
+            // let key=this.props.listindex.id.toString();
+            // let value=countslength.toString();
+
+            // if (!AsyncStorage.getItem(key)) {
+            //     AsyncStorage.setItem(key,value,(error)=>{
+
+            //     })
+            // }else{
+            //   try{
+            //     AsyncStorage.getItem(key,(error,result)=>{
+            //         alert(result); 
+            //         let value=new String(parseInt(countslength)+parseInt(result))
+            //     })
+            //   }catch(err){
+
+            //   }
+            // }
+ 
+        });
+        
+         this.setState({
               no:this.props.listindex.no,
               InvoiceTime :this.props.listindex.invoiceTime,
               orderNo:this.props.listindex.orderNo,
@@ -53,83 +93,46 @@ class Message extends React.Component{
               ShippingProject:this.props.listindex.shippingProject,
               ShippingMaterials:this.props.listindex.shippingMaterials,
               ShippingNumber:this.props.listindex.shippingNumber,
-              ShippingDescribe:this.props.listindex.shippingDescribe,
-              CodeListst:this.props.arrcodelist,
+              ShippingDescribe:this.props.listindex.shippingDescribe
           })
 
+
     }
+
+
     finish(){
+      alert('finish');
+      this.setState({
+        Text:'已关联发货单'
+      })
       let data={
-       CodeList:this.state.CodeListst,
+        CodeList:this.state.CodeList
       }
-      
       axios.post(`${url}/Invoice/GetCategoryByCode`,data)
-      .then(res=>this.finishok(res))
-      .catch(err=>console.log(err))
-    }
-    finishok(res){
-      // console.log(res.data);
-      let arr=[
-      {materialNo: "101904", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 4, yieldly: null,id:904},
-      {materialNo: "101902", describe: "BB 34-0-16 40 普 N-K2", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 2, yieldly: null,id:902},
-      {materialNo: "101901", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 1, yieldly: null,id:901},
-      {materialNo: "101903", describe: "BB 34-0-16 40 普 N-K3", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 3, yieldly: null,id:903},
-      {materialNo: "101902", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 1, yieldly: null,id:902}
-      ];
-      let newarr=[];
-      function sortId(a,b){  
-        return a.id-b.id  
-      }
-      arr.sort(sortId);
-      console.log(arr);
-      
-      for (let i = 0; i < arr.length;) {
-        let count = 0;
-        for (let j = i; j < arr.length; j++) {
-          if (arr[i].id === arr[j].id) {
-            count++;
-          }
-        }
-        newarr.push({
-          date: arr[i],
-          count: count
-        })
-        i+=count;
-      }
-      console.log(newarr);
-      this.setState({
-        count:res.data.length,
-        modalVisible:true,
-        arrlist:newarr
-      })
-      console.log(this.state.arrlist)
-    
-
-    }
-    close(){
-      this.setState({
-        modalVisible:false
-      })
-      // this.props.arrcodelist
-      // this.props.ididid
-      let data={
-       CodeList:this.props.arrcodelist,
-       id:this.props.ididid
-      }
-      axios.post(`${url}/Invoice/UpdateQRCode`,data)
       .then(res=>alert(res))
-      .catch(err=>console.log(err))
+      .catch(err=>alert(err))
     }
-
   render(){
     return(       
       <ScrollView style={styles.flexbox}>
       
+            <View style={styles.admin}>
+                  <View style={styles.adminbtn}>
+                    <Button title="扫描二维码" color="#4ea3f1"
+                     onPress={() => scanToastAndroid.scanQRCode()}
+                     >扫描二维码</Button>
+                  </View>
+            </View>
+
+            <View style={styles.admin}>
+                  <View style={styles.adminbtn}>
+                    {this.state.Text}
+                  </View>
+            </View>
+
             <View style={styles.itemss}>
                 <Text style={styles.fontwidth}>已读取二维码个数</Text>
-                <Text style={styles.fontwidth}> 
-
-                </Text>
+                <Text style={styles.fontwidth}>{this.state.count}</Text>
             </View>
              
             <View>
@@ -163,15 +166,21 @@ class Message extends React.Component{
               <View style={styles.items}><Text style={styles.fontwidths}>交货方式</Text><Text style={styles.inputwidth}>
                   {this.state.DeliveryMode}
               </Text></View>
+
+
               <View style={styles.items}><Text style={styles.fontwidths}>车牌号</Text><Text style={styles.inputwidth}>
                   {this.state.PlateNumber}
               </Text></View>
+
+
               <View style={styles.items}><Text style={styles.fontwidths}>司机名</Text><Text style={styles.inputwidth}>
                   {this.state.DriverName }
               </Text></View>
                <View style={styles.items}><Text style={styles.fontwidths}>司机电话</Text><Text style={styles.inputwidth}>
                   {this.state.DriverPhoneNo }
               </Text></View>
+
+
               <View style={styles.items}><Text style={styles.fontwidths}>装运项目</Text><Text style={styles.inputwidth}>
                   {this.state.ShippingProject}
               </Text></View>
@@ -184,53 +193,23 @@ class Message extends React.Component{
               <View style={styles.items}><Text style={styles.fontwidths}>装运物料描述</Text><Text style={styles.inputwidth}>
                   {this.state.ShippingDescribe}
               </Text></View>
+
+              
             </View>
 
-            {/*<View style={styles.adminn}>
+            <View style={styles.adminn}>
+            <View style={styles.adminbtnn}>
+              <Button title="继续扫描" color="#4ea3f1" onPress={() => scanToastAndroid.scanQRCode()}>继续扫描</Button>
+            </View>
+            </View>
+            <View style={styles.adminn}>
               <View style={styles.adminbtnn}>
                 <Button title="取消关联" color="#4ea3f1" onPress={()=>alert('好喜欢你')}>取消关联</Button>
               </View>
             </View>
-            */}
-
-            <Modal
-                  animationType='slide'
-                  transparent={true}
-                  visible={this.state.modalVisible} 
-                  onRequestClose={()=>{console.log(' ')}}
-            >
-              <View style={styles.modal}>
-                <View style={styles.viewmodal}>
-
-                  <View style={styles.viewmodalheader}>
-                    <Text style={styles.viewmodalheadertext}>扫描结果如下</Text>
-                  </View>
-                  {
-                    this.state.arrlist.map((item,index)=>{
-                    return (
-                    <View style={styles.viewmodalbody} key={index}>
-                      <Text style={styles.viewmodalbodytext} numberOfLines={2}>编号{item.date.materialNo}</Text>
-                      <Text style={styles.viewmodalbodytext} numberOfLines={2}>描述{item.date.describe}</Text>
-                      <Text style={styles.viewmodalbodytext} numberOfLines={2}>已扫{item.count}</Text>
-                    </View>
-                    )
-                  })
-
-                  }
-                  
-
-                  <View style={styles.viewmodalfoot}>
-                    <Text  onPress={this.close.bind(this)} style={styles.viewmodalfoottext}>确定关联</Text>
-                  </View>
-
-                </View>
-              </View>  
-          </Modal>
-
-
             <View style={styles.adminn}>
               <View style={styles.adminbtnn}>
-                <Text  style={{color:'#fff',fontSize:18}} onPress={this.finish.bind(this)}>确定完成</Text>
+                <Button title="确定完成" color="#4ea3f1" onPress={this.finish.bind(this)}>确定完成</Button>
               </View>
             </View>
            
@@ -282,6 +261,7 @@ const styles={
       borderBottomWidth:1,
       borderBottomColor:'#aaa'
     },
+
     adminn:{
     width:width,
     flexDirection:'row',
@@ -290,62 +270,17 @@ const styles={
     marginBottom:30
     },
     adminbtnn:{
-      justifyContent:'center',
-      alignItems:'center',
-      width:0.4*width,
-      height:0.1*height,
-      borderRadius:8,
-      backgroundColor:'#4ea3f1'
-    },
-    modal:{
-    width:width,
-    height:height,
-    backgroundColor:'#000',
-    opacity:0.9
-    },
-    viewmodal:{
-    width:width,
-    flexDirection:'column',
-    justifyContent:'center',
-    alignItems:'center'
-    },
-    viewmodalheader:{
-    alignItems:'center',
-    width:width    
-    },
-    viewmodalheadertext:{
-    fontSize:16,
-    fontWeight: 'bold',
-    color:'#fff'
-    },
-    viewmodalbody:{
-    flexDirection:'row',
-    alignItems:'center',
-    width:width,
-    marginTop:0.05*height
-    },
-    viewmodalbodytext:{
-    fontSize:15,
-    color:'#fff',
-    marginLeft:5
-    },
-    viewmodalfoot:{
-    alignItems:'center',
-    justifyContent:'center',
-    height:0.1*height,
-    width:0.4*width,
-    backgroundColor:'#4ea3f1',
-    position:'absolute',
-    top:0.85*height,
-    borderRadius:15
-    },
-    viewmodalfoottext:{
-      fontSize:18,
-      color:'#fff',
-      fontWeight:'bold'
-    }
+    flex:0.4
+    
+
+  },
+  adminbtnnleft:{
+     
+
+  }
  
   
+
 }
 
 export default Message

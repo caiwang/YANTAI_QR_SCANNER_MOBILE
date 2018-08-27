@@ -62,8 +62,8 @@ class Login extends React.Component{
     // console.log("id",res)
     if (res.data.code==2&&res.data.data.rights[0].softName=="装车发运软件（烟台）") {
       let ID=res.data.data.companyID;
-      // console.log(ID)
-      Actions.Shipment({ID})
+      console.log(ID)
+      Actions.Qrcode({ID})
     }else{
       this.setState({alert:'用户名密码不匹配'});
     }
