@@ -50,13 +50,15 @@ class Message extends React.Component{
               PlateNumber:this.props.listindex.plateNumber,
               DriverName:this.props.listindex.driverName,
               DriverPhoneNo:this.props.listindex.driverPhoneNo,
-              ShippingProject:this.props.listindex.shippingProject,
-              ShippingMaterials:this.props.listindex.shippingMaterials,
-              ShippingNumber:this.props.listindex.shippingNumber,
-              ShippingDescribe:this.props.listindex.shippingDescribe,
+
+
+              // ShippingProject:this.props.listindex.invoiceShipmentList[0].project,
+              // ShippingMaterials:this.props.listindex.invoiceShipmentList[0].materialNo,
+              // ShippingNumber:this.props.listindex.invoiceShipmentList[0].quantity,
+              // ShippingDescribe:this.props.listindex.invoiceShipmentList[0].describe,
               CodeListst:this.props.arrcodelist,
           })
-
+            alert(this.props.listindex.invoiceShipmentList)
     }
     finish(){
       let data={
@@ -68,20 +70,21 @@ class Message extends React.Component{
       .catch(err=>console.log(err))
     }
     finishok(res){
+      let arr=res.data;
       // console.log(res.data);
-      let arr=[
-      {materialNo: "101904", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 4, yieldly: null,id:904},
-      {materialNo: "101902", describe: "BB 34-0-16 40 普 N-K2", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 2, yieldly: null,id:902},
-      {materialNo: "101901", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 1, yieldly: null,id:901},
-      {materialNo: "101903", describe: "BB 34-0-16 40 普 N-K3", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 3, yieldly: null,id:903},
-      {materialNo: "101902", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 1, yieldly: null,id:902}
-      ];
+      // let arr=[
+      // {materialNo: "101904", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 4, yieldly: null,id:904},
+      // {materialNo: "101902", describe: "BB 34-0-16 40 普 N-K2", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 2, yieldly: null,id:902},
+      // {materialNo: "101901", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 1, yieldly: null,id:901},
+      // {materialNo: "101903", describe: "BB 34-0-16 40 普 N-K3", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 3, yieldly: null,id:903},
+      // {materialNo: "101902", describe: "BB 34-0-16 40 普 N-K1", manufacturer: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgA…P2bF3ntik+c9xjjQw/wdOG7YacQiXbAAAAABJRU5ErkJggg==", manufacturerNo: 1, yieldly: null,id:902}
+      // ];
       let newarr=[];
       function sortId(a,b){  
         return a.id-b.id  
       }
       arr.sort(sortId);
-      console.log(arr);
+      console.log(res.data);
       
       for (let i = 0; i < arr.length;) {
         let count = 0;
@@ -98,11 +101,11 @@ class Message extends React.Component{
       }
       console.log(newarr);
       this.setState({
-        count:res.data.length,
+        count:arr.length,
         modalVisible:true,
         arrlist:newarr
       })
-      console.log(this.state.arrlist)
+      // console.log(this.state.arrlist)
     
 
     }
@@ -117,7 +120,7 @@ class Message extends React.Component{
        id:this.props.ididid
       }
       axios.post(`${url}/Invoice/UpdateQRCode`,data)
-      .then(res=>alert(res))
+      .then(res=>alert('关联成功'))
       .catch(err=>console.log(err))
     }
 
@@ -125,13 +128,13 @@ class Message extends React.Component{
     return(       
       <ScrollView style={styles.flexbox}>
       
-            <View style={styles.itemss}>
+            {/*<View style={styles.itemss}>
                 <Text style={styles.fontwidth}>已读取二维码个数</Text>
                 <Text style={styles.fontwidth}> 
 
                 </Text>
             </View>
-             
+            */} 
             <View>
               <View style={styles.items}><Text style={styles.fontwidths}>交货单号</Text><Text style={styles.inputwidth}>
                   {this.state.no}
@@ -172,6 +175,7 @@ class Message extends React.Component{
                <View style={styles.items}><Text style={styles.fontwidths}>司机电话</Text><Text style={styles.inputwidth}>
                   {this.state.DriverPhoneNo }
               </Text></View>
+            {/*
               <View style={styles.items}><Text style={styles.fontwidths}>装运项目</Text><Text style={styles.inputwidth}>
                   {this.state.ShippingProject}
               </Text></View>
@@ -184,6 +188,7 @@ class Message extends React.Component{
               <View style={styles.items}><Text style={styles.fontwidths}>装运物料描述</Text><Text style={styles.inputwidth}>
                   {this.state.ShippingDescribe}
               </Text></View>
+              */}
             </View>
 
             {/*<View style={styles.adminn}>

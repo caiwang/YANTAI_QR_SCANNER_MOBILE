@@ -119,18 +119,18 @@ class Login extends React.Component{
 
         <View style={styles.admin}>
             <View style={styles.adminbtn}>
-              <Button title="登  录" color="#4ea3f1" onPress={this.login.bind(this)} >登  录</Button>
+              <TouchableNativeFeedback onPress={this.login.bind(this)}><Text style={styles.adminbtntext} >登  录</Text></TouchableNativeFeedback>
             </View>
         </View>
 
         <View style={styles.admin}>
         <View style={styles.password}>
-          <Text  style={{color:"#095194"}} onPress={this.changepassword.bind(this)}>修改密码</Text>
+          <Text  style={{color:"#095194",fontSize:18}} onPress={this.changepassword.bind(this)}>修改密码</Text>
         </View>
         </View>
 
         <View style={styles.copyright}>
-          <Text  style={{color:"#eee",textAlign:'center'}} numberOfLines={2}>Copyright © 2017 Xiaoyu Video Communications (beijing). Technology Co.Ltd </Text>
+          <Text  style={{color:"#eee",textAlign:'center',fontWeight:'bold'}} numberOfLines={2}>Copyright © 2017 Xiaoyu Video Communications (beijing). Technology Co.Ltd </Text>
         </View>
         </ImageBackground>
       </View>
@@ -162,7 +162,7 @@ const styles={
     marginTop:0.12*height
   },
   hfont:{
-    fontSize:22
+    fontSize:28
     // color:'#13ad9b' 
   },
   admin:{
@@ -172,28 +172,43 @@ const styles={
     alignItems:'center'
   },
   contentfont:{
-    width:0.5*width
+    width:0.5*width,
+     fontSize:16
     // color:'#13ad9b'
   },
   contentfontred:{
-    color:'#f00'
+    color:'#f00',
+    fontSize:15
   },
   textfont:{
-    fontSize:16
+    fontSize:20
     // color:'#13ad9b' 
   },
   adminbtn:{
-    width:width*0.3,
-    marginTop:15
+    marginTop:width*0.06,
+    justifyContent:'center',
+    alignItems:'center',
+    borderRadius:10
+  },
+  adminbtntext:{
+    color:'#fff',
+    paddingLeft:width*0.15,
+    paddingRight:width*0.15,
+    paddingBottom:width*0.03,
+    paddingTop:width*0.03,
+    borderRadius:12,
+    backgroundColor:'#4ea3f1',
+    fontSize:19
   },
   password:{
     width:width*0.5,
-    marginTop:15,
+    marginTop:30,
     alignItems:'center'
   },
   copyright:{
-    width:width,
-    marginTop:0.05*height
+    position:'absolute',
+    top:0.9*height,
+    width:width
   }
 
 }

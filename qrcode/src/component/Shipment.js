@@ -31,8 +31,6 @@ class Shipment extends React.Component{
     }
 
 
-
-    
     onblur=()=>{
       let idid=this.props.qrcodeidid
       let timestamp = Date.parse(new Date());

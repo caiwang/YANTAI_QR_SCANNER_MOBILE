@@ -72,15 +72,15 @@ class Qrcode extends React.Component{
 
 
         <View style={styles.admin}>
-            <View style={styles.adminbtn}>
-              <Text style={{color:'#fff',fontSize:18}} onPress={this.makeback.bind(this)} >撤销一个</Text>
-            </View>
+            
+              <TouchableNativeFeedback onPress={this.makeback.bind(this)}><Text style={styles.adminbtn}  >撤销一个</Text></TouchableNativeFeedback>
+            
         </View>
 
         <View style={styles.admin}>
-            <View style={styles.adminbtn}>
-              <Text style={{color:'#fff',fontSize:18}} onPress={this.makesure.bind(this)} >确定完成</Text>
-            </View>
+            
+              <TouchableNativeFeedback onPress={this.makesure.bind(this)}><Text  style={styles.adminbtn}  >确定完成</Text></TouchableNativeFeedback>
+            
         </View>
 
       </View>
@@ -106,12 +106,18 @@ const styles={
     fontWeight:'bold'
   },
   adminbtn:{
-    width:width*0.4,
-    height:0.15*height,
+    // width:width*0.4,
+    // height:0.15*height,
     justifyContent:'center',
     alignItems:'center',
+    paddingLeft:width*0.15,
+    paddingRight:width*0.15,
+    paddingBottom:width*0.07,
+    paddingTop:width*0.07,
     backgroundColor:'#4ea3f1',
-    borderRadius:10
+    borderRadius:12,
+    color:'#fff',
+    fontSize:20
   },
      itemss:{
       flexDirection:'row',
@@ -122,7 +128,7 @@ const styles={
     },
      fontwidth:{
       width:0.4*width,
-      fontSize:20,
+      fontSize:22,
       textAlign:'left',
       color:'#4ea3f1'
     }
