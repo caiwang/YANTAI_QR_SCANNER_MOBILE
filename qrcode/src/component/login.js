@@ -1,6 +1,7 @@
 import React,{component,PropTypes}from 'react'
-import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,TouchableNativeFeedback} from 'react-native';
+import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,TouchableNativeFeedback,AsyncStorage} from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import CheckBox from 'react-native-checkbox';
 import axios from 'axios';
 import {url} from '../config';
 class Login extends React.Component{
@@ -11,12 +12,24 @@ class Login extends React.Component{
           password:'',
           alert:'',
           showhide:true,
-          autoFocus:false
+          autoFocus:false,
+          checked:false,
+          checkboxshow:false
       }
   }
 
   componentDidMount(){
-
+          AsyncStorage.getItem('admin',(error,result)=>{
+            this.setState({admin:result})
+          })
+          AsyncStorage.getItem('password',(error,result)=>{
+            this.setState({password:result})
+          })
+          // alert(this.state.admin)
+          if (this.state.admin=="" || this.state.password=="") {
+              this.setState({checked:false})
+          };
+        
   }
 
   login(){
@@ -49,7 +62,6 @@ class Login extends React.Component{
           name:admin,
           password:password,
           }
-       
         axios.post(`${url}/UserInfo/Login`,data)
         .then(res=>this.loginok(res))
         .catch(err=>this.loginerr(err))
@@ -59,20 +71,32 @@ class Login extends React.Component{
     }
   
     loginok(res){
-    // console.log("id",res)
-    if (res.data.code==2&&res.data.data.rights[0].softName=="装车发运软件（烟台）") {
-      let ID=res.data.data.companyID;
-      // console.log(ID)
-      Actions.Shipment({ID})
-    }else{
-      this.setState({alert:'用户名密码不匹配'});
-    }
-    if (res.data.code==1) {this.setState({alert:'用户名密码不匹配'});};
-    if (res.data.code==0) {this.setState({alert:'用户名不存在'}); };
-
-
+    
+    if (res.data.code==2) {
       
-    }
+      for (let i=0;i<res.data.data.rights.length;i++) {
+
+        if (res.data.data.rights[i].softName=='装车发运软件（烟台）') {
+         
+          let ID=res.data.data.companyID;
+          let renyuandengluid=res.data.data.id;
+          Actions.Shipment({ID,renyuandengluid});
+
+          }else if(res.data.data.rights[i].softName=='装车发运软件（秦皇岛）'){
+            
+            let ID=res.data.data.companyID;
+            let renyuandengluid=res.data.data.id;
+            Actions.Shipment({ID,renyuandengluid});
+          }
+      }
+    };
+
+    if (res.data.code!=2){
+      this.setState({alert:'请正确输入用户名或者密码'});
+      return false;
+    }    
+  }
+
     loginerr(err){
       console.log("err",err)
     }
@@ -82,13 +106,33 @@ class Login extends React.Component{
   changepassword(){
      Actions.Changepassword()
   }
+  checkbox(){
+    this.setState({
+      checked:!this.state.checked
+    })
+  
+    if(this.state.checked==true){
+        AsyncStorage.setItem('admin',this.state.admin,(error)=>{
+        })
+        AsyncStorage.setItem('password',this.state.password,(error)=>{
+        })
+      }else{
+         AsyncStorage.removeItem('admin',(error,result)=>{
+          })
+          AsyncStorage.removeItem('password',(error,result)=>{
+          })
+      }
+ 
+  }
   render(){
     let {admin,password,alert,showhide,autoFocus}=this.state
     return(
 
 
       <View style={styles.flexbox}>
-        <ImageBackground style={{height:height,width:width}} source={require('../img/back.jpg')} resizeMode='cover' opacity={1}>
+    {/*<Text>{url}</Text>*/}
+      
+        <ImageBackground style={{height:height,width:width}} source={require('../img/back1.jpg')} resizeMode='cover' opacity={1}>
      
         <View style={styles.loginn} >
           <Image style={{height:0.2*height,width:0.4*width}} source={require('../img/logo.png')} ></Image>
@@ -98,6 +142,9 @@ class Login extends React.Component{
         <View style={styles.login}>
           <View>
            <Text style={styles.hfont}>美盛智能物流追踪系统</Text>
+          </View>
+          <View>
+           <Text style={styles.hfont}>装车发运软件</Text>
           </View>
         </View>  
 
@@ -112,6 +159,17 @@ class Login extends React.Component{
            <View><TextInput placeholder='password' placeholderTextColor="#888" maxLength={20} keyboardType='numeric' style={styles.contentfont}  secureTextEntry={true} onChangeText={(password)=>{this.setState({password:password})}} value={password} 
            ></TextInput></View>
         </View>
+        
+        <View style={styles.admin}>
+          <CheckBox
+              label='记住密码'
+              checked={this.state.checked}
+              labelStyle={{color:'#3a88f9',fontSize:25}}
+              checkboxStyle={{width:20,height:20,borderColor:'#4ea3f1'}}
+              onChange={ this.checkbox.bind(this)}>
+          </CheckBox>
+        </View>
+        
 
         <View style={styles.admin}>
         <Text style={styles.contentfontred}>{this.state.alert}</Text>
@@ -119,18 +177,18 @@ class Login extends React.Component{
 
         <View style={styles.admin}>
             <View style={styles.adminbtn}>
-              <Button title="登  录" color="#4ea3f1" onPress={this.login.bind(this)} >登  录</Button>
+              <TouchableNativeFeedback onPress={this.login.bind(this)}><Text style={styles.adminbtntext} >登  录</Text></TouchableNativeFeedback>
             </View>
         </View>
 
         <View style={styles.admin}>
         <View style={styles.password}>
-          <Text  style={{color:"#095194"}} onPress={this.changepassword.bind(this)}>修改密码</Text>
+          <Text  style={{color:"#095194",fontSize:25}} onPress={this.changepassword.bind(this)}>修改密码</Text>
         </View>
         </View>
 
         <View style={styles.copyright}>
-          <Text  style={{color:"#eee",textAlign:'center'}} numberOfLines={2}>Copyright © 2017 Xiaoyu Video Communications (beijing). Technology Co.Ltd </Text>
+          <Text  style={{color:"#eee",textAlign:'center',fontWeight:'bold'}} numberOfLines={2}>Copyright © 2017 Xiaoyu Video Communications (beijing). Technology Co.Ltd </Text>
         </View>
         </ImageBackground>
       </View>
@@ -148,10 +206,12 @@ const styles={
   login:{
     width:width,
     height:50,
-    flexDirection:'row',
+    flexDirection:'column',
     justifyContent:'center',
     alignItems:'center',
-    marginTop:0.01*height
+    marginTop:0.012*height,
+    marginBottom:0.02*height
+
   },
   loginn:{
     width:width,
@@ -162,7 +222,9 @@ const styles={
     marginTop:0.12*height
   },
   hfont:{
-    fontSize:22
+    justifyContent:'center',
+    alignItems:'center',
+    fontSize:28
     // color:'#13ad9b' 
   },
   admin:{
@@ -172,28 +234,44 @@ const styles={
     alignItems:'center'
   },
   contentfont:{
-    width:0.5*width
+    width:0.5*width,
+     fontSize:25
     // color:'#13ad9b'
   },
   contentfontred:{
-    color:'#f00'
+    color:'#f00',
+    fontSize:20
   },
   textfont:{
-    fontSize:16
+    fontSize:25
     // color:'#13ad9b' 
   },
   adminbtn:{
-    width:width*0.3,
-    marginTop:15
+    marginTop:width*0.06,
+    justifyContent:'center',
+    alignItems:'center',
+    borderRadius:10
+  },
+  adminbtntext:{
+    color:'#fff',
+    paddingLeft:width*0.145,
+    paddingRight:width*0.145,
+    paddingBottom:width*0.035,
+    paddingTop:width*0.035,
+    letterSpacing:15,
+    borderRadius:12,
+    backgroundColor:'#4ea3f1',
+    fontSize:25
   },
   password:{
     width:width*0.5,
-    marginTop:15,
+    marginTop:30,
     alignItems:'center'
   },
   copyright:{
-    width:width,
-    marginTop:0.05*height
+    position:'absolute',
+    top:0.9*height,
+    width:width
   }
 
 }

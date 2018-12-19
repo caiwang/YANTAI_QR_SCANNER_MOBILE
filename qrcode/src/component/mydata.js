@@ -1,3 +1,4 @@
+
 import React,{component,PropTypes} from 'react'
 import { Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,ToastAndroid} from 'react-native';
 import { Actions,Alert } from 'react-native-router-flux';
@@ -5,23 +6,23 @@ import axios from 'axios';
 import {url} from '../config';
 import Loading from './Loading';
 const scanToastAndroid = NativeModules.ScanToastAndroid;
-class Message extends React.Component{
+let Subscription
+class mydata extends React.Component{
     constructor(props) {
       super(props);
       this.state={
+        alert:'',
         nheight:22,
         CodeList:'',
         newCodeList:'',
         invoiceShipmentList:'',
-        count:null,
-        countcounts:'',
+        count:0,
+        countcounts:0,
         
-
         obj: '',
         pinleizhiliang:[],
-        zongzhiliang:'',
+        zongzhiliang:0,
         modalVisible:false,
-
 
         no :'',
         InvoiceTime :'',
@@ -42,40 +43,89 @@ class Message extends React.Component{
         ShippingMaterials:'',
         ShippingNumber:'',
         ShippingDescribe:'',
-        invoiceShipmentListlength:''
+        invoiceShipmentListlength:'',
+        fendai:'',
+        zongdaishu:''
       };
+    }
+
+
+    componentWillUnMount(){
+      Subscription.remove()
+
     }
  
     componentDidMount(){
-      //alert(this.props.listindex.id)
+      
       axios.get(`${url}/Invoice/get/${this.props.listindex.id}`)
-      .then(res=>{this.setState({CodeList:res.data.data.codeList,invoiceShipmentList:res.data.data.invoiceShipmentList,count:res.data.data.codeList.length,countcounts:res.data.data.groupNoList.length,no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,orderNo:res.data.data.orderNo,OrderTime:res.data.data.orderTime,CustomerNo:res.data.data.customerNo,DealerName:res.data.data.dealerName,DealerPostcord:res.data.data.dealerPostcord,DealerPlace:res.data.data.dealerPlace,ShipmentMode:res.data.data.shipmentMode,DeliveryMode:res.data.data.deliveryMode,PlateNumber:res.data.data.plateNumber,DriverName:res.data.data.driverName,DriverPhoneNo:res.data.data.driverPhoneNo});})
-      .catch(err=>console.log(err));
+      .then(res=>{
+        //alert(res.data.data.memo)
+        this.setState({
+        CodeList:res.data.data.codeList,
+        invoiceShipmentList:res.data.data.invoiceShipmentList,
+        count:res.data.data.codeList.length,
+        countcounts:res.data.data.groupNoList.length,
+        no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,
+        orderNo:res.data.data.orderNo,
+        OrderTime:res.data.data.orderTime,
+        CustomerNo:res.data.data.customerNo,
+        DealerName:res.data.data.dealerName,
+        DealerPostcord:res.data.data.dealerPostcord,
+        DealerPlace:res.data.data.dealerPlace,
+        ShipmentMode:res.data.data.shipmentMode,
+        DeliveryMode:res.data.data.deliveryMode,
+        PlateNumber:res.data.data.plateNumber,
+        DriverName:res.data.data.driverName,
+        DriverPhoneNo:res.data.data.driverPhoneNo,
+        fendai:res.data.data.memo,
+        zongdaishu:res.data.data.quantity
+
+      });})
+      .catch(err=>console.log(''));
       //alert('此发货单还没有扫描，按下F5开始扫描')
-      // const counts=new Array();
-      // DeviceEventEmitter.addListener('EventName', (res) => {
-      //       this.setState({ obj: res });
-      //       let scanres=this.state.obj.SCAN;
-      //           counts.push(scanres);
-      //       let countsset=new Set(counts);
-      //       let countarray=Array.from(countsset);
-      //       let newcountarray=countarray;
-      //       if (newcountarray.length==this.state.CodeList.length) {
-      //           alert('此次未扫描到二维码');
-      //         return false;
-      //       }else{
-      //         alert('此次已扫描到二维码');              
-      //       }
-      //       this.setState({CodeList:newcountarray});
-      //       // alert(this.state.CodeList);
-      //       let data={
-      //        CodeList:this.state.CodeList,
-      //        id:this.props.listindex.id
-      //       }
-      //       axios.post(`${url}/Invoice/UpdateQRcode`,data)
-      //       .then(res=>{this.setState({count:res.data.codeList.length,countcounts:res.data.groupNoList.length});})
-      //       .catch(err=>alert("您的网络不好"))
-      //   });
+      
+      Subscription=DeviceEventEmitter.addListener('EventName', (res) => {
+            const counts=new Array();
+            this.setState({ obj: res });
+            let scanres=this.state.obj.SCAN;
+                counts.push(scanres);
+            let countsset=new Set(counts);
+            let countarray=Array.from(countsset);
+            let newcountarray=countarray;
+            //alert(newcountarray)
+            //newcountarray.length==this.state.CodeList.length
+            if (newcountarray.length==0) {
+               this.setState({
+                alert:'没有二维码'
+              })
+               // this.setState({CodeList:newcountarray});
+              return false;
+            }else{
+              this.setState({
+               alert:'扫到二维码'
+              })
+                // this.setState({CodeList:newcountarray});
+                   //alert(this.props.listindex.id);
+
+                  this.setState({CodeList:newcountarray});
+                    let data={
+                               CodeList:this.state.CodeList,
+                               id:this.props.listindex.id
+                              }
+                  if(this.state.CodeList=!null||this.state.CodeList.length>0||data!=null){
+                    axios.post(`${url}/Invoice/UpdateQRcode`,data)
+                      .then(res=>{
+                        this.setState({
+                                        count:res.data.codeList==null?0:res.data.codeList.length,
+                                        countcounts:res.data.groupNoList==null?0:res.data.groupNoList.length
+                                    })
+                                  }
+                            )
+                      .catch(err=>console.log(' '))
+                }
+            }
+            
+        });
 
          if(this.state.invoiceShipmentList==null||this.state.invoiceShipmentList=="") {
               this.setState({
@@ -96,12 +146,13 @@ class Message extends React.Component{
           return false;
       }else{
         //alert(this.state.CodeList)
-          let zongzhiliang='';
+          // let zongzhiliang='';
           let data={
-               CodeList:this.state.CodeList
+               // CodeList:this.state.CodeList
+               id:this.props.listindex.id
             }
           
-      axios.post(`${url}/invoice/GetGroupByCode`,data)
+      axios.post(`${url}/invoice/GetGroupByID`,data)
         .then(res=>{  
                        this.finishok(res)
                       // this.setState({
@@ -113,30 +164,37 @@ class Message extends React.Component{
                       // this.setState({zongzhiliang:zongzhiliang});
                     }
               )
-        .catch(err=>alert("您的网络不好"))          
+        .catch(err=>console.log(' '))          
       }
     }
 
     finishok(res){
       //alert(2)
       //alert(res)
-      let zongzhiliang='';
-      
-        for (let i=0;i<res.data.length;i++){
-          zongzhiliang+=res.data[i].rule
-        };
+      // let zongzhiliang=0;
+      //   for (let i=0;i<res.data.length;i++){
+      //     zongzhiliang+=res.data[i].rule*100/100
+      //   };
         this.setState({
-          pinleizhiliang:res.data,
-          zongzhiliang:zongzhiliang,
+          pinleizhiliang:res.data.data,
+          zongzhiliang:res.data.quantity,
            modalVisible:true
         });
+        // return zongzhiliang;
+        
+    }
+    canclequxiao(){
+      // alert(this.props.listindex.id)
+      axios.get(`${url}/invoice/DeleteCode?id=${this.props.listindex.id}`)
+      .then(res=>{alert("取消完成")})
+      .catch(err=>console.log(' '))
     }
 
     quedingtijiao(){
       this.setState({
         modalVisible:false
       })
-      //alert(this.props.listindex.id)
+      // alert(this.props.listindex.id)
       axios.get(`${url}/Invoice/AddFlag?id=${this.props.listindex.id}`)
         .then(res=>{
           if(res.data==true){
@@ -145,7 +203,7 @@ class Message extends React.Component{
             alert("提交失败")
           }
         })
-        .catch(err=>alert("您的网络不好"))
+        .catch(err=>console.log(" "))
     }
 
     close(){
@@ -154,20 +212,66 @@ class Message extends React.Component{
       })
       
     }
+
+
+    onPressLearnMore(){
+      //alert(1)
+      if(this.state.fendai.trim()!=''){
+        //alert(2)
+        let data={
+          id:this.props.listindex.id,
+          memo:this.state.fendai,
+        }
+        axios.post(`${url}/invoice/QuantitySum`,data)
+          .then(res=>this.setState({
+            zongdaishu:res.data.quantity
+          })
+          ).catch(err=>alert(err))
+      }
+      
+    }
+
   render(){
+
+    let jisuandaishu=<View>
+                        <View style={{display:'flex',flexDirection:'row', justifyContent:'space-around'}}>
+                          <TextInput
+                            style={{width:width-120,borderColor:'#aaa',borderWidth:1,marginTop:20,fontSize:20,marginLeft:10,lineHeight:50}}
+                            value={this.state.fendai}
+                            underlineColorAndroid='transparent'
+                            autoFocus={true}
+                            multiline = {true}
+                            keyboardType='numeric'
+                            placeholder="请输入袋数,以‘,’分隔"
+                            onChangeText={(text) => this.setState({fendai:text})}
+                          />
+                          <View style={{width:80,height:50,marginTop:20,fontSize:20}}>
+                            <Button
+                            style={{height:50,lineHeight:50}}
+                              onPress={this.onPressLearnMore.bind(this)}
+                              title="计算"
+                              color="#aaa"
+                              accessibilityLabel="Learn more about this purple button"
+                            />
+                          </View>
+                        </View>
+                        <View>
+                          <Text style={{fontSize:20,marginTop:20,marginLeft:20}}>总袋数：{this.state.zongdaishu}</Text>
+                        </View>
+                        
+                        
+                    </View>
     return(
       <ScrollView style={styles.flexbox}>
       <ImageBackground style={{width:width}} source={require('../img/back.jpg')} resizeMode='cover' opacity={1}>
-    {/*
-<View style={styles.itemss}>
+            <View style={styles.itemss}>
                 <Text style={{width:0.35*width,fontSize:22,textAlign:'center'}}>二维码数</Text>
                 <Text style={{width:0.15*width,fontSize:22,textAlign:'left',color:'#f00'}}>{this.state.count}</Text>
                 <Text style={{width:0.35*width,fontSize:22,textAlign:'center'}}>网兜数量</Text>
                 <Text style={{width:0.15*width,fontSize:22,textAlign:'left',color:'#f00'}}>{this.state.countcounts}</Text>
             </View>
-    */}
-            
-            
+            {jisuandaishu}
+            <View style={{width:width}}><Text style={{fontSize:15,color:"#f00",textAlign:'center'}}>{this.state.alert}</Text></View>
             <View>
               <View style={styles.items}><Text style={styles.fontwidths}>交货单号</Text><Text style={styles.inputwidth}>
                   {this.state.no}
@@ -234,9 +338,9 @@ class Message extends React.Component{
             <View style={styles.adminnmargin}>
                 
             </View>
-{/*
- <View style={styles.adminn}>
-                <Text style={styles.adminbtnntext} onPress={()=>alert('成功')}>取 消 关 联</Text>
+
+            <View style={styles.adminn}>
+                <Text style={styles.adminbtnntext} onPress={this.canclequxiao.bind(this)}>取 消 关 联</Text>
             </View>
 
             <View style={styles.adminn}>
@@ -286,8 +390,6 @@ class Message extends React.Component{
                 </View>  
                
           </Modal>
-*/}
-           
         </ImageBackground>
       </ScrollView>
       )
@@ -419,7 +521,7 @@ const styles={
 
 }
 
-export default Message
+export default mydata
 
 
 

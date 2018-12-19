@@ -1,27 +1,26 @@
 import React,{component,PropTypes} from 'react'
-import { Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,ToastAndroid} from 'react-native';
+import {Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage} from 'react-native';
 import { Actions,Alert } from 'react-native-router-flux';
 import axios from 'axios';
 import {url} from '../config';
 import Loading from './Loading';
 const scanToastAndroid = NativeModules.ScanToastAndroid;
-class Message extends React.Component{
+class SearchMessage extends React.Component{
     constructor(props) {
       super(props);
       this.state={
+        loading:true,
         nheight:22,
         CodeList:'',
         newCodeList:'',
         invoiceShipmentList:'',
         count:null,
         countcounts:'',
-        
 
         obj: '',
+        modalVisible:false,
         pinleizhiliang:[],
         zongzhiliang:'',
-        modalVisible:false,
-
 
         no :'',
         InvoiceTime :'',
@@ -37,47 +36,38 @@ class Message extends React.Component{
         DriverName:'',
         DriverPhoneNo:'',
 
-
         ShippingProject:'',
         ShippingMaterials:'',
         ShippingNumber:'',
-        ShippingDescribe:'',
-        invoiceShipmentListlength:''
+        ShippingDescribe:''
       };
     }
  
     componentDidMount(){
-      //alert(this.props.listindex.id)
+      // alert(this.props.listindex.id)
       axios.get(`${url}/Invoice/get/${this.props.listindex.id}`)
       .then(res=>{this.setState({CodeList:res.data.data.codeList,invoiceShipmentList:res.data.data.invoiceShipmentList,count:res.data.data.codeList.length,countcounts:res.data.data.groupNoList.length,no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,orderNo:res.data.data.orderNo,OrderTime:res.data.data.orderTime,CustomerNo:res.data.data.customerNo,DealerName:res.data.data.dealerName,DealerPostcord:res.data.data.dealerPostcord,DealerPlace:res.data.data.dealerPlace,ShipmentMode:res.data.data.shipmentMode,DeliveryMode:res.data.data.deliveryMode,PlateNumber:res.data.data.plateNumber,DriverName:res.data.data.driverName,DriverPhoneNo:res.data.data.driverPhoneNo});})
-      .catch(err=>console.log(err));
-      //alert('此发货单还没有扫描，按下F5开始扫描')
-      // const counts=new Array();
-      // DeviceEventEmitter.addListener('EventName', (res) => {
-      //       this.setState({ obj: res });
-      //       let scanres=this.state.obj.SCAN;
-      //           counts.push(scanres);
-      //       let countsset=new Set(counts);
-      //       let countarray=Array.from(countsset);
-      //       let newcountarray=countarray;
-      //       if (newcountarray.length==this.state.CodeList.length) {
-      //           alert('此次未扫描到二维码');
-      //         return false;
-      //       }else{
-      //         alert('此次已扫描到二维码');              
-      //       }
-      //       this.setState({CodeList:newcountarray});
-      //       // alert(this.state.CodeList);
-      //       let data={
-      //        CodeList:this.state.CodeList,
-      //        id:this.props.listindex.id
-      //       }
-      //       axios.post(`${url}/Invoice/UpdateQRcode`,data)
-      //       .then(res=>{this.setState({count:res.data.codeList.length,countcounts:res.data.groupNoList.length});})
-      //       .catch(err=>alert("您的网络不好"))
-      //   });
-
-         if(this.state.invoiceShipmentList==null||this.state.invoiceShipmentList=="") {
+      .catch(err=>alert(err));
+      const counts=new Array();
+      DeviceEventEmitter.addListener('EventName', (res) => {
+            this.setState({ obj: res ,count:''});
+            let scanres=this.state.obj.SCAN;
+                counts.push(scanres);
+            let countsset=new Set(counts);
+            let countarray=Array.from(countsset);
+            let newcountarray=countarray
+            // alert(newcountarray.length)
+            // let countslength=parseInt(countsset.size)+parseInt(this.state.count);
+            this.setState({CodeList:newcountarray});
+            let data={
+             CodeList:this.state.CodeList,
+             id:this.props.listindex.id
+            }
+            axios.post(`${url}/Invoice/UpdateQRcode`,data)
+            .then(res=>{this.setState({count:res.data.codeList.length,countcounts:res.data.groupNoList.length});})
+            .catch(err=>alert(err))
+        });
+         if (this.state.invoiceShipmentList==null||this.state.invoiceShipmentList=="") {
               this.setState({
                 nheight:22
               })
@@ -86,88 +76,45 @@ class Message extends React.Component{
                 nheight:this.state.invoiceShipmentList.length*10+22
               })
          }
-
-      }
+                  
+    }
     
-
     finish(){
-      if (this.state.CodeList==null || this.state.CodeList=="") {
-          alert("你还没有扫码,暂时无法提交");
-          return false;
-      }else{
-        //alert(this.state.CodeList)
-          let zongzhiliang='';
-          let data={
-               CodeList:this.state.CodeList
-            }
-          
-      axios.post(`${url}/invoice/GetGroupByCode`,data)
-        .then(res=>{  
-                       this.finishok(res)
-                      // this.setState({
-                      //   pinleizhiliang:res.data
-                      // });
-                      // for (let i=0;i<res.data.length;i++){
-                      //   zongzhiliang+=res.data[i].rule
-                      // };
-                      // this.setState({zongzhiliang:zongzhiliang});
-                    }
-              )
-        .catch(err=>alert("您的网络不好"))          
-      }
-    }
-
-    finishok(res){
-      //alert(2)
-      //alert(res)
-      let zongzhiliang='';
-      
-        for (let i=0;i<res.data.length;i++){
-          zongzhiliang+=res.data[i].rule
-        };
-        this.setState({
-          pinleizhiliang:res.data,
-          zongzhiliang:zongzhiliang,
-           modalVisible:true
-        });
-    }
-
-    quedingtijiao(){
+      let zongzhiliang=null;
       this.setState({
-        modalVisible:false
+      modalVisible:true
       })
-      //alert(this.props.listindex.id)
-      axios.get(`${url}/Invoice/AddFlag?id=${this.props.listindex.id}`)
-        .then(res=>{
-          if(res.data==true){
-            alert("提交完成")
-          }else{
-            alert("提交失败")
-          }
-        })
-        .catch(err=>alert("您的网络不好"))
+      let data={
+          CodeList:this.state.CodeList
+        }
+      axios.post(`${url}/invoice/GetGroupByCode`,data)
+      .then(res=>{this.setState({pinleizhiliang:res.data});for (let i=0;i<res.data.length;i++) {zongzhiliang+=res.data[i].rule};this.setState({zongzhiliang:zongzhiliang});})
+      .catch(err=>alert("您的网络不好"))
     }
-
     close(){
       this.setState({
         modalVisible:false
       })
-      
+      axios.get(`${url}/Invoice/AddFlag?id=${this.props.listindex.id}`)
+      .then(res=>alert("关联成功"))
+      .catch(err=>alert("您的网络不好"))
     }
   render(){
     return(
       <ScrollView style={styles.flexbox}>
-      <ImageBackground style={{width:width}} source={require('../img/back.jpg')} resizeMode='cover' opacity={1}>
-    {/*
-<View style={styles.itemss}>
-                <Text style={{width:0.35*width,fontSize:22,textAlign:'center'}}>二维码数</Text>
-                <Text style={{width:0.15*width,fontSize:22,textAlign:'left',color:'#f00'}}>{this.state.count}</Text>
-                <Text style={{width:0.35*width,fontSize:22,textAlign:'center'}}>网兜数量</Text>
-                <Text style={{width:0.15*width,fontSize:22,textAlign:'left',color:'#f00'}}>{this.state.countcounts}</Text>
+      <ImageBackground style={{height:this.state.nheight*0.16*height,width:width}} source={require('../img/back.jpg')} resizeMode='cover' opacity={1}>
+            <View style={styles.itemss}>
+                <Text style={styles.fontwidths}>二维码数</Text>
+                <Text style={{width:0.35*width,fontSize:22,textAlign:'left',color:'#f00'}}>{this.state.count}</Text>
             </View>
-    */}
-            
-            
+          
+            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',marginTop:15}}>
+                <Text style={styles.fontwidths}>网兜数量</Text>
+                <Text style={{width:0.35*width,fontSize:22,textAlign:'left',color:'#f00'}}>{this.state.countcounts}</Text>
+            </View>
+          
+
+
             <View>
               <View style={styles.items}><Text style={styles.fontwidths}>交货单号</Text><Text style={styles.inputwidth}>
                   {this.state.no}
@@ -178,7 +125,28 @@ class Message extends React.Component{
               <View style={styles.items}><Text style={styles.fontwidths}>订单号</Text><Text style={styles.inputwidth}>
                   {this.state.orderNo}
               </Text></View>
-              
+              <View style={styles.items}><Text style={styles.fontwidths}>订单日期</Text><Text style={styles.inputwidth}>
+                  {this.state.OrderTime}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>客户编号</Text><Text style={styles.inputwidth}>
+                  {this.state.CustomerNo}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>经销商名称</Text><Text style={styles.inputwidth}>
+                  {this.state.DealerName}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>经销商邮编</Text><Text style={styles.inputwidth}>
+                  {this.state.DealerPostcord}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>经销商地址</Text><Text style={styles.inputwidth}>
+                  {this.state.DealerPlace}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>装运方式</Text><Text style={styles.inputwidth}>
+                  {this.state.ShipmentMode}
+              </Text></View>
+              <View style={styles.items}><Text style={styles.fontwidths}>交货方式</Text><Text style={styles.inputwidth}>
+                  {this.state.DeliveryMode}
+              </Text></View>
+
 
               <View style={styles.items}><Text style={styles.fontwidths}>车牌号</Text><Text style={styles.inputwidth}>
                   {this.state.PlateNumber}
@@ -192,10 +160,9 @@ class Message extends React.Component{
                   {this.state.DriverPhoneNo }
               </Text></View>
 
-
               {
                 (this.state.invoiceShipmentList==null||this.state.invoiceShipmentList=="")?
-                <View style={{borderBottomWidth:1,borderBottomColor:'#ddd'}}>
+                <View style={{borderBottomWidth:2,borderBottomColor:'#164d8d'}}>
                     <View style={styles.items}><Text style={styles.fontwidths}>装运项目</Text><Text style={styles.inputwidthcard}>
                     您没有填写
                     </Text></View>
@@ -210,7 +177,7 @@ class Message extends React.Component{
                     </Text></View>
                     </View>:this.state.invoiceShipmentList.map((item,index)=>{
                             return(
-                            <View key={index} style={{borderBottomWidth:2,borderBottomColor:'#164d8d'}}>
+                            <View key={index} style={{borderBottomWidth:1,borderBottomColor:'#ddd'}}>
                               <View style={styles.items}><Text style={styles.fontwidths}>装运项目</Text><Text style={styles.inputwidthcard}>
                               {item.project}
                               </Text></View>
@@ -230,18 +197,19 @@ class Message extends React.Component{
 
               
             </View>
-           
+            
             <View style={styles.adminnmargin}>
                 
             </View>
-{/*
- <View style={styles.adminn}>
-                <Text style={styles.adminbtnntext} onPress={()=>alert('成功')}>取 消 关 联</Text>
+
+            <View style={styles.adminn}>
+                <Text style={styles.adminbtnntext} onPress={()=>alert('成功')}>取消关联</Text>
             </View>
 
             <View style={styles.adminn}>
-                <Text style={styles.adminbtnntext} onPress={this.finish.bind(this)}>确 定 完 成</Text>
+                <Text style={styles.adminbtnntext} onPress={this.finish.bind(this)}>确定完成</Text>
             </View>
+
 
             <Modal
                   animationType='slide'
@@ -249,46 +217,37 @@ class Message extends React.Component{
                   visible={this.state.modalVisible} 
                   onRequestClose={()=>{console.log(' ')}}
             >
-                <View style={styles.modal}>
-                        <View style={styles.viewmodal}>
+              <View style={styles.modal}>
+                <View style={styles.viewmodal}>
 
-                            <View style={styles.viewmodalheader}>
-                              <Text style={styles.viewmodalheadertext}>扫描结果如下</Text>
-                            </View>
-                          <View style={{height:0.6*height,backgroundColor:'#000'}}>
-                          <ScrollView style={{backgroundColor:'#000'}}>
-                          {
-                              this.state.pinleizhiliang.map((item,index)=>{
-                              return (
-                              <View style={styles.viewmodalbody} key={index}>
-                                <Text style={styles.viewmodalbodytext} numberOfLines={2}>品类{item ? (item.category ? (item.category.describe ? item.category.describe :'') : '') :''}</Text>
-                                <Text style={styles.viewmodalbodytext} numberOfLines={2}>质量{item.rule ? item.rule :''}</Text>
-                              </View>
-                              )
-                            })
-                              
-                            }
-                          </ScrollView>
-                          </View>
-                       
-                            <View style={{alignItems:'center',justifyContent:'center'}}>
-                              <Text style={{color:'#fff',fontSize:19}}>总 质 量：{this.state.zongzhiliang}</Text>
-                            </View>
+                  <View style={styles.viewmodalheader}>
+                    <Text style={styles.viewmodalheadertext}>扫描结果如下</Text>
+                  </View>
+                
+                  {
+                    this.state.pinleizhiliang.map((item,index)=>{
+                    return (
+                    <View style={styles.viewmodalbody} key={index}>
+                      <Text style={styles.viewmodalbodytext} numberOfLines={2}>品类{item.category.describe}</Text>
+                      <Text style={styles.viewmodalbodytext} numberOfLines={2}>质量{item.rule}</Text>
+                    </View>
+                    )
+                  })
+                    
+                  }
+                
+                  <View style={{alignItems:'center',justifyContent:'center'}}>
+                    <Text style={{color:'#fff',fontSize:19}}>总 质 量：{this.state.zongzhiliang}</Text>
+                  </View>
 
-                            
-                            <View style={styles.viewmodalfoot}>
-                              <Text  onPress={this.quedingtijiao.bind(this)} style={styles.viewmodalfoottext}>提 交</Text>
-                              <Text  onPress={this.close.bind(this)} style={styles.viewmodalfoottext}>取 消</Text>
-                            </View>
+                  <View style={styles.viewmodalfoot}>
+                    <Text  onPress={this.close.bind(this)} style={styles.viewmodalfoottext}>关 闭</Text>
+                  </View>
 
-                        </View>
-                  
-                </View>  
-               
+                </View>
+              </View>  
           </Modal>
-*/}
-           
-        </ImageBackground>
+      </ImageBackground>     
       </ScrollView>
       )
       
@@ -309,7 +268,7 @@ const styles={
     flexbox:{
      flex:1
     },
-    itemss:{
+     itemss:{
       flexDirection:'row',
       justifyContent:'center',
       alignItems:'center',
@@ -335,8 +294,8 @@ const styles={
     },
     inputwidthcard:{
       fontSize:22,
-      color:'#164d8d',
-      width:0.55*width
+      width:0.55*width,
+      color:'#164d8d'
     },
     adminnmargin:{
       marginTop:30
@@ -382,7 +341,7 @@ const styles={
     marginTop:0.05*height
     },
     viewmodalbody:{
-    flexDirection:'column',
+    flexDirection:'row',
     justifyContent:'center',
     alignItems:'center',
     width:width,
@@ -391,35 +350,31 @@ const styles={
     viewmodalbodytext:{
     fontSize:20,
     color:'#fff',
-    marginLeft:5,
+    marginLeft:5
     },
     viewmodalfoot:{
-      width:width,
-    display:'flex',
-    flexDirection:'row',
-    //alignItems:'center',
-    //justifyContent:'center',
-    // position:'absolute',
-    // top:0.75*height,
-    marginTop:10,
-    justifyContent:"space-between"
+    alignItems:'center',
+    justifyContent:'center',
+    position:'absolute',
+    top:0.75*height
     },
     viewmodalfoottext:{
-      
       backgroundColor:'#4ea3f1',
-      paddingRight:20,
-      paddingLeft:20,
+      paddingRight:60,
+      paddingLeft:60,
       paddingBottom:25,
       paddingTop:25,
-      fontSize:23,
+      fontSize:22,
       color:'#fff',
+      fontWeight:'bold',
+      borderRadius:5
     }
  
   
 
 }
 
-export default Message
+export default SearchMessage
 
 
 

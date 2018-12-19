@@ -1,5 +1,5 @@
 import React,{component,PropTypes} from 'react'
-import { View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView, AsyncStorage} from 'react-native';
+import { TouchableOpacity,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView, AsyncStorage} from 'react-native';
 import { Actions,Alert } from 'react-native-router-flux';
 import {url} from '../config';
 import axios from 'axios';
@@ -132,7 +132,7 @@ class Changepassword extends React.Component{
 
                   <View style={styles.adminn}>
                   <View style={styles.adminbtnn}>
-                    <Button title="确 定" color="#4ea3f1" onPress={this.getuser.bind(this)}>确 定</Button>
+                    <TouchableOpacity onPress={this.getuser.bind(this)}><Text style={{backgroundColor:'#4ea3f1',fontSize:22,color:'#fff',textAlign:"center",paddingTop:10,paddingBottom:10,borderRadius:5}}>确 定</Text></TouchableOpacity>
                   </View>
                   </View>
 
@@ -149,9 +149,9 @@ class Changepassword extends React.Component{
 
               <View style={styles.adminn}>
                   <View style={styles.adminbtnn}>
-                    <Button title="确 定 修 改" color="#4ea3f1" disabled={this.state.disable} 
+                    <TouchableOpacity activeOpacity={0.3} disabled={this.state.disable} 
                      onPress={this.changepassword.bind(this)}
-                    >确 定 修 改</Button>
+                    ><Text style={{backgroundColor:'#4ea3f1',fontSize:22,color:'#fff',textAlign:'center',paddingTop:10,paddingBottom:10,borderRadius:5}}>确 定 修 改</Text></TouchableOpacity>
                   </View>
              </View>
         
@@ -173,19 +173,19 @@ const styles={
     },
     fonttitle:{
       width:width*0.9,
-      fontSize:19,
+      fontSize:24,
       // color:'#2c5c53'
       // backgroundColor:'#f00'
     },
     font:{
       width:width*0.2,
-      fontSize:16,
+      fontSize:24,
       // color:'#2c5c53',
       textAlign:'left'
     },
     marginl:{
       width:width*0.6,
-      fontSize:16
+      fontSize:24
       // color:'#2c5c53'
       
     },
@@ -196,7 +196,7 @@ const styles={
     alignItems:'center'
   },
   adminbtnn:{
-    width:width*0.3,
+    width:width*0.4,
     marginTop:30
   },
   contentfontred:{

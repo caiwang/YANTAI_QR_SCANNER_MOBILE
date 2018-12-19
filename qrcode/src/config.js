@@ -1,9 +1,6 @@
-
-const url='http://192.168.40.31:1460/api'
+const url='http://47.92.96.119/api'
+//const url='http://192.168.40.31:1460/api'
 export {url}
-
-
-
 // dysoft.bclzdd.com
 // delphisk.vicp.net
 //192.168.40.10
