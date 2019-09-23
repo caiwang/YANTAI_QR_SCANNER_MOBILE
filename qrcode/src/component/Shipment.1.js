@@ -401,7 +401,7 @@ class Shipment extends React.Component{
     }
   
     // myQRcode(index,item){
-      
+    //   
     //   let listindex=this.state.datalist[index];
     //   let fahuodanid=item.id
     //   let userInfoIDD=this.props.renyuandengluid;
@@ -411,7 +411,7 @@ class Shipment extends React.Component{
 
     // }
     // myunQRcode(index,item){
-      
+    //   
     //   let listindex=this.state.datalist[index];
     //   let fahuodanid=item.id
     //   let ID=this.props.ID
@@ -422,24 +422,32 @@ class Shipment extends React.Component{
     //   Actions.myundata({listindex,userInfoIDD,ID,fahuodanid});
     // }
 
-    myQRcode(index,item,zhuangtai1){
-      let zhuangtai=zhuangtai1
-      let fayundanID=item.id
-      let renyuandengluid=this.props.renyuandengluid
-      let companyID=this.props.ID
-      Actions.chuyunyuan({companyID,renyuandengluid,zhuangtai,fayundanID})
-    
+    myQRcode(index,item,zhuangtai){
+     
+      this.setState({
+        danjuzhuangtai:zhuangtai
+      })
+      let listindex=this.state.datalist[index];
+      let fahuodanid=item.id
+      let userInfoIDD=this.props.renyuandengluid;
+      let ID=this.props.ID
+      //alert(listindex)
+      Actions.mydata({listindex,userInfoIDD,ID,fahuodanid});
 
     }
-
-
-    myunQRcode(index,item,zhuangtai1){
+    myunQRcode(index,item,zhuangtai){
       
-      let zhuangtai=zhuangtai1
-      let fayundanID=item.id
-      let renyuandengluid=this.props.renyuandengluid
-      let companyID=this.props.ID
-      Actions.chuyunyuan({companyID,renyuandengluid,zhuangtai,fayundanID})
+      this.setState({
+        danjuzhuangtai:zhuangtai
+      })
+      let listindex=this.state.datalist[index];
+      let fahuodanid=item.id
+      let ID=this.props.ID
+     // alert(listindex)
+      let userInfoIDD=this.props.renyuandengluid;
+      
+      //alert(fahuodanid)
+      Actions.myundata({listindex,userInfoIDD,ID,fahuodanid});
     }
 
 

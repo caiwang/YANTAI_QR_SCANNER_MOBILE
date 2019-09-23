@@ -95,7 +95,17 @@ class UnFinishMessage extends React.Component{
           countcounts:'0'
         })
       })
-      .catch(err=>alert("您的网络不好"))
+      .catch(err=>{Alert.alert(
+        '提示',
+        '您的网络不好',
+        [
+          // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+          // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          {text: '确定', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+      })
     }
     
     
@@ -118,7 +128,17 @@ class UnFinishMessage extends React.Component{
               //   this.setState({modalheight:3})
               // }
           })
-            .catch(err=>alert("您的网络不好"))
+            .catch(err=>{Alert.alert(
+              '提示',
+              '您的网络不好',
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {text: '确定', onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            )
+            })
         
     }
 
@@ -130,12 +150,42 @@ class UnFinishMessage extends React.Component{
       axios.get(`${url}/Invoice/AddFlag?id=${this.props.listindex.id}`)
       .then(res=>{
         if(res.data==true){
-            alert("提交完成")
+          {Alert.alert(
+            '提示',
+            '提交完成',
+            [
+              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: '确定', onPress: () => console.log('OK Pressed')},
+            ],
+            { cancelable: false }
+          )
+          }
           }else{
-            alert("提交失败")
+            {Alert.alert(
+              '提示',
+              '提交失败',
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {text: '确定', onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            )
+            }
           }
       })
-      .catch(err=>alert("您的网络不好"))
+      .catch(err=>{Alert.alert(
+        '提示',
+        '您的网络不好',
+        [
+          // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+          // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          {text: '确定', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+      })
     }
     close(){
       this.setState({
@@ -151,12 +201,12 @@ class UnFinishMessage extends React.Component{
     return(
       <ScrollView style={styles.flexbox}>
       <ImageBackground style={{width:width}} source={require('../img/back.jpg')} resizeMode='cover' opacity={1}>
-    {/*<View style={styles.itemss}>
+    <View style={styles.itemss}>
                 <Text style={{width:0.35*width,fontSize:25,textAlign:'center'}}>二维码数</Text>
                 <Text style={{width:0.15*width,fontSize:25,textAlign:'left',color:'#f00'}}>{this.state.count}</Text>
                  <Text style={{width:0.35*width,fontSize:25,textAlign:'center'}}>网兜数量</Text>
                 <Text style={{width:0.15*width,fontSize:25,textAlign:'left',color:'#f00'}}>{this.state.countcounts}</Text>
-            </View>*/}
+            </View>
 
             {jisuandaishu}
             

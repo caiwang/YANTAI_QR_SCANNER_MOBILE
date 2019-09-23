@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform,StyleSheet,Text,View } from 'react-native';
+import { Platform,StyleSheet,Text,View ,DeviceEventEmitter,AsyncStorage } from 'react-native';
 import { Scene, Router ,Actions } from 'react-native-router-flux';
 import Login from './component/login';
 import Changepassword from './component/Changepassword';
@@ -11,11 +11,28 @@ import UnFinishMessage from './component/UnFinishMessage';
 import FinishMessage from './component/FinishMessage';
 import myundata from './component/myundata';
 import mydata from './component/mydata';
+import chexiaomouyige from './component/chexiaomouyige';
+import chexiaomouyigee from './component/chexiaomouyigee';
 import No from './component/No';
 import NoUnFinishMessage from './component/NoUnFinishMessage';
+import chuyunyuan from './component/chuyunyuan';
 
 class Route extends Component{
-
+  componentWillUnmount(){
+    this.listener.remove()
+    alert(17)
+  }
+  componentDidMount(){
+    this.listener=DeviceEventEmitter.addListener('EventName', (res) => {
+      
+      //alert(res.SCAN)
+        let countss=new Array();
+        let scanres=res.SCAN;
+        let error=111
+       
+        
+    })
+  }
   tuichu=()=>{
     Actions.Login()
   }
@@ -47,7 +64,11 @@ class Route extends Component{
 
           <Scene key='myundata' component={myundata} title="我的未完成" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
 
-          
+          <Scene key='chexiaomouyige' component={chexiaomouyige} hideNavBar title="撤销" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
+
+          <Scene key='chexiaomouyigee'  component={chexiaomouyigee} hideNavBar title="撤销" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
+
+          <Scene key='chuyunyuan'  component={chuyunyuan} hideNavBar title="储运员" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
 	    </Scene>
     </Router>
     );

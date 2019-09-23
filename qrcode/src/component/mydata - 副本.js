@@ -1,20 +1,13 @@
 
 import React,{component,PropTypes} from 'react'
-import { Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,ToastAndroid,Alert} from 'react-native';
-import { Actions} from 'react-native-router-flux';
+import { Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,ToastAndroid} from 'react-native';
+import { Actions,Alert } from 'react-native-router-flux';
 import axios from 'axios';
 import CheckBox from 'react-native-checkbox';
 import {url} from '../config';
 import Loading from './Loading';
-import Sound from 'react-native-sound';
-
-let demoAudio = require('./112.m4a');//支持众多格式
-let message=''
-let tijiaomessage=''
-let chexiaozuihoumessage=''
-let zhuanyizuihoumessage=''
 const scanToastAndroid = NativeModules.ScanToastAndroid;
-//let listener;
+let Subscription;
 let idid;
 class mydata extends React.Component{
     constructor(props) {
@@ -72,62 +65,48 @@ class mydata extends React.Component{
 // shouldComponentUpdate(){
 //   Subscription.remove()
 // }
-    componentWillUnmount(){
-      //alert('componentWillUnMount')
+    componentWillUnMount(){
       this.listener.remove();
       // this.listenerA.remove();
 
     }
     
-     componentDidMount(){
-      //alert('componentDidMount')
-       
-      
-          this.setState({
-            Loading:false,
-          })
-          axios.get(`${url}/Invoice/get/${this.props.fahuodanid}`)
-          .then(res=>{
-            //alert('componentDidMount12')
-            this.setState({
-            CodeList:res.data.data.codeList,
-            invoiceShipmentList:res.data.data.invoiceShipmentList,
-            count:res.data.data.codeList.length,
-            countcounts:res.data.data.groupNoList.length,
-            no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,
-            orderNo:res.data.data.orderNo,
-            OrderTime:res.data.data.orderTime,
-            CustomerNo:res.data.data.customerNo,
-            DealerName:res.data.data.dealerName,
-            DealerPostcord:res.data.data.dealerPostcord,
-            DealerPlace:res.data.data.dealerPlace,
-            ShipmentMode:res.data.data.shipmentMode,
-            DeliveryMode:res.data.data.deliveryMode,
-            PlateNumber:res.data.data.plateNumber,
-            DriverName:res.data.data.driverName,
-            DriverPhoneNo:res.data.data.driverPhoneNo,
-            fendai:res.data.data.memo,
-            zongdaishu:res.data.data.quantity
-          });})
-          .catch(err=>{
-            Alert.alert(
-              '提示',
-              '您的网络不好',
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
-          });
+    componentDidMount(){
+       // this.listenerA = DeviceEventEmitter.addListener('refresh',()=>{
+
+       // })
+      // alert(this.props.userInfoIDD)
+      alert(this.props.listindex.id);
+      this.setState({
+        Loading:false
+      })
+      axios.get(`${url}/Invoice/get/${this.props.listindex.id}`)
+      .then(res=>{
+        //alert(res.data.data.memo)
+        this.setState({
+        CodeList:res.data.data.codeList,
+        invoiceShipmentList:res.data.data.invoiceShipmentList,
+        count:res.data.data.codeList.length,
+        countcounts:res.data.data.groupNoList.length,
+        no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,
+        orderNo:res.data.data.orderNo,
+        OrderTime:res.data.data.orderTime,
+        CustomerNo:res.data.data.customerNo,
+        DealerName:res.data.data.dealerName,
+        DealerPostcord:res.data.data.dealerPostcord,
+        DealerPlace:res.data.data.dealerPlace,
+        ShipmentMode:res.data.data.shipmentMode,
+        DeliveryMode:res.data.data.deliveryMode,
+        PlateNumber:res.data.data.plateNumber,
+        DriverName:res.data.data.driverName,
+        DriverPhoneNo:res.data.data.driverPhoneNo,
+        fendai:res.data.data.memo,
+        zongdaishu:res.data.data.quantity
+      });})
+      .catch(err=>console.log(''));
       //alert('此发货单还没有扫描，按下F5开始扫描')
-      //alert(Actions.state.index)
-       //if (Actions.state.index==1) {
-        
+      // if (Actions.state.index==2) {
         this.listener=DeviceEventEmitter.addListener('EventName', (res) => {
-          
-          //alert('addListener')
             let counts=new Array();
             this.setState({ obj: res });
             let scanres=this.state.obj.SCAN;
@@ -146,121 +125,39 @@ class mydata extends React.Component{
                alert:'扫到二维码',
                CodeList:newcountarray
               })
-
-              let data={
-                CodeList:this.state.CodeList,
-                id:this.props.fahuodanid,
-                userInfoID:this.props.userInfoIDD
-              }
-              //if(this.state.CodeList.length!=0&&data!=null){
-
-                  axios.post(`${url}/Invoice/UpdateQRcode`,data)
-                    .then(res=>{
-                      
-
-                      let abc=res.data.message
-                      switch(abc){
-                        case "网兜扫描成功":message='网兜扫描成功';break;
-                        case "此交货单没有装运物料！":message='此交货单没有装运物料！';break;
-                        case "此二维码不存在！":message='此二维码不存在！';break;
-                        case "网兜重复扫描！":message='网兜重复扫描！';break;
-                        case "网兜已被扫描！":message='网兜已被扫描！';break;
-                        case "该品类已经发运完成，请勿多扫！":message='该品类已经发运完成，请勿多扫！';break;
-                        case "该订单装运项目已经发运完成！":message='该订单装运项目已经发运完成！';break;
-                        case "此网兜所属物料与交货单的装运项目不符！":message='此网兜所属物料与交货单的装运项目不符！';break;
-
-                      } 
-                      
-                      
-                      
-                      
-                      
-                      if(message=="网兜扫描成功" || message=="该订单装运项目已经发运完成！"){
-                          
-                            //提示音
-                            const s = new Sound(demoAudio, (e) => {
-                                if (e) {
-                                    console.log('播放失败');
-                                    return;
-                                }
-                                s.play(() => s.release());
-                            });
-
-
-                            //提示弹窗
-                              
-                                Alert.alert(
-                                    '提示',
-                                    message,
-                                    [
-                                      // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                      // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                      {text: '确定', onPress: () => console.log('OK Pressed')},
-                                    ],
-                                    { cancelable: false }
-                                  )
-                                
-                        
-                        
-                      }else{
-                          //提示弹窗
-                            if(message!=""){
-                              Alert.alert(
-                                  '提示',
-                                  message,
-                                  [
-                                    // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                    // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                    {text: '确定', onPress: () => console.log('OK Pressed')},
-                                  ],
-                                  { cancelable: false }
-                                )
+                  // this.setState({CodeList:newcountarray});
+                    let data={
+                               CodeList:this.state.CodeList,
+                               id:this.props.listindex.id
                               }
-                      }
-
-                      
-
-
-
-                      this.setState({
-                        count:res.data.invoice ? (res.data.invoice.codeList.length==0?0:res.data.invoice.codeList.length) :'',
-                        countcounts:res.data.invoice ? (res.data.invoice.groupNoList.length==0?0:res.data.invoice.groupNoList.length) :''
-                      })
-                      
-                    
-
-                    }
-                  )
-                  .catch(err=>{
-                    //alert(err)
-                    // Alert.alert(
-                    //   '提示',
-                    //   '您的网络不好1111',
-                    //   [
-                    //     // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                    //     // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                    //     {text: '确定', onPress: () => console.log('OK Pressed')},
-                    //   ],
-                    //   { cancelable: false }
-                    // )
-                  })
-
-                  //}
-
-                  // }else{
-                  //   alert('未扫到二维码')
-                  // }
-
-
-
-
-
-
-
+                  if(this.state.CodeList.length==1&&data!=null){
+                    if (Actions.state.index==2) {
+                    axios.post(`${url}/Invoice/UpdateQRcode`,data)
+                      .then(res=>{
+                        this.setState({
+                                        count:res.data.codeList==null?0:res.data.codeList.length,
+                                        countcounts:res.data.groupNoList==null?0:res.data.groupNoList.length
+                                    })
+                        if (this.state.CodeList.length>=1) {
+                            // counts=new Array(1);
+                            // scanres='';
+                            // countsset=null;
+                            // countarray=null;
+                            // newcountarray=null;
+                            this.setState({
+                              CodeList:''
+                            })
+                        };
+                        // this.mydayaUpdateQRcode()
+                                  }
+                            )
+                      .catch(err=>console.log(' '))
+                }
               }
+            }
             
         });
-      
+      // };
       
 
          if(this.state.invoiceShipmentList==null||this.state.invoiceShipmentList=="") {
@@ -274,33 +171,15 @@ class mydata extends React.Component{
          }
 
       }
-
-
-
-   
-
-
-
       mydayaUpdateQRcode(){
-      axios.get(`${url}/Invoice/get/${this.props.fahuodanid}`)
+      axios.get(`${url}/Invoice/get/${this.props.listindex.id}`)
       .then(res=>{
         //alert(res.data.data.memo)
         this.setState({
         count:res.data.data.codeList.length,
         countcounts:res.data.data.groupNoList.length
       });})
-      .catch(err=>{
-        Alert.alert(
-          '提示',
-          '您的网络不好',
-          [
-            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-            // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-            {text: '确定', onPress: () => console.log('OK Pressed')},
-          ],
-          { cancelable: false }
-        )
-      });
+      .catch(err=>console.log(''));
       }
 
 
@@ -310,65 +189,44 @@ class mydata extends React.Component{
           Loading:true,
           countcounts:''
         })
-        axios.get(`${url}/Invoice/get/${this.props.fahuodanid}`)
+        axios.get(`${url}/Invoice/get/${this.props.listindex.id}`)
       .then(res=>{
         //alert(res.data.data.memo)
         this.setState({
            Loading:false,
-          CodeList:res.data.data.codeList,
-          invoiceShipmentList:res.data.data.invoiceShipmentList,
-          count:res.data.data.codeList.length,
-          countcounts:res.data.data.groupNoList.length,
-          no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,
-          orderNo:res.data.data.orderNo,
-          OrderTime:res.data.data.orderTime,
-          CustomerNo:res.data.data.customerNo,
-          DealerName:res.data.data.dealerName,
-          DealerPostcord:res.data.data.dealerPostcord,
-          DealerPlace:res.data.data.dealerPlace,
-          ShipmentMode:res.data.data.shipmentMode,
-          DeliveryMode:res.data.data.deliveryMode,
-          PlateNumber:res.data.data.plateNumber,
-          DriverName:res.data.data.driverName,
-          DriverPhoneNo:res.data.data.driverPhoneNo,
-          fendai:res.data.data.memo,
-          zongdaishu:res.data.data.quantity
+        CodeList:res.data.data.codeList,
+        invoiceShipmentList:res.data.data.invoiceShipmentList,
+        count:res.data.data.codeList.length,
+        countcounts:res.data.data.groupNoList.length,
+        no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,
+        orderNo:res.data.data.orderNo,
+        OrderTime:res.data.data.orderTime,
+        CustomerNo:res.data.data.customerNo,
+        DealerName:res.data.data.dealerName,
+        DealerPostcord:res.data.data.dealerPostcord,
+        DealerPlace:res.data.data.dealerPlace,
+        ShipmentMode:res.data.data.shipmentMode,
+        DeliveryMode:res.data.data.deliveryMode,
+        PlateNumber:res.data.data.plateNumber,
+        DriverName:res.data.data.driverName,
+        DriverPhoneNo:res.data.data.driverPhoneNo,
+        fendai:res.data.data.memo,
+        zongdaishu:res.data.data.quantity
       });})
-      .catch(err=>{
-        Alert.alert(
-          '提示',
-          '您的网络不好',
-          [
-            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-            // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-            {text: '确定', onPress: () => console.log('OK Pressed')},
-          ],
-          { cancelable: false }
-        )
-      });
+      .catch(err=>console.log(''));
       }
     
 
     finish(){
       if (this.state.CodeList==null || this.state.CodeList=="") {
-          
-          Alert.alert(
-            '提示',
-            '你还没有扫码，暂时无法提交',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
+          alert("你还没有扫码,暂时无法提交");
           return false;
       }else{
         //alert(this.state.CodeList)
           // let zongzhiliang='';
           let data={
                // CodeList:this.state.CodeList
-               id:this.props.fahuodanid
+               id:this.props.listindex.id
             }
           
       axios.post(`${url}/invoice/GetGroupByID`,data)
@@ -383,18 +241,7 @@ class mydata extends React.Component{
                       // this.setState({zongzhiliang:zongzhiliang});
                     }
               )
-        .catch(err=>{
-          Alert.alert(
-            '提示',
-            '您的网络不好',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
-        })          
+        .catch(err=>console.log(' '))          
       }
     }
 
@@ -414,8 +261,8 @@ class mydata extends React.Component{
         
     }
     canclequxiao(){
-      // alert(this.props.fahuodanid);
-      axios.get(`${url}/invoice/DeleteCode?id=${this.props.fahuodanid}`)
+      // alert(this.props.listindex.id);
+      axios.get(`${url}/invoice/DeleteCode?id=${this.props.listindex.id}`)
       .then(res=>{
         if(res.data.codeList.length==0 && res.data.groupNoList.length==0){
           this.setState({
@@ -423,143 +270,28 @@ class mydata extends React.Component{
             countcounts:0,
             CodeList:''
           })
-          Alert.alert(
-            '提示',
-            '取消完成',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
+            alert("取消完成")
           }else{
-            Alert.alert(
-              '提示',
-              '取消失败',
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
+            alert("取消失败")
           }
       })
-      .catch(err=>{
-        Alert.alert(
-          '提示',
-          '您的网络不好',
-          [
-            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-            // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-            {text: '确定', onPress: () => console.log('OK Pressed')},
-          ],
-          { cancelable: false }
-        )
-      })
+      .catch(err=>console.log(' '))
     }
 
     quedingtijiao(){
       this.setState({
         modalVisible:false
       })
-      if(this.props.ID==3){
-        // alert(this.props.fahuodanid)
-            axios.get(`${url}/Invoice/AddFlagLimit?id=${this.props.fahuodanid}&userInfoID=${this.props.userInfoIDD}`)
-            .then(res=>{
-
-                // if(res.data.message=="此交货单已经发运完成，请勿重新提交！"){
-                //   tijiaomessage='此交货单已经发运完成，请勿重新提交！'
-                // }else if(res.data.message=="数量不符，不能提交！"){
-                //   tijiaomessage='数量不符，不能提交！'
-                // }else if(res.data.message=="提交失败"){
-                //   tijiaomessage='提交失败'
-                // }else if(res.data.message=="提交的交货单没有物料！"){
-                //   tijiaomessage='提交的交货单没有物料！'
-                // }else if(res.data.message=="提交成功"){
-                //   tijiaomessage='提交成功'
-                // }
-
-
-                let abc=res.data.message
-                          switch(abc){
-                            case "此交货单已经发运完成，请勿重新提交！":tijiaomessage='此交货单已经发运完成，请勿重新提交！';break;
-                            case "数量不符，不能提交！":tijiaomessage='数量不符，不能提交！';break;
-                            case "提交失败":tijiaomessage='提交失败';break;
-                            case "提交的交货单没有物料！":tijiaomessage='提交的交货单没有物料！';break;
-                            case "提交成功":tijiaomessage='提交成功';break;
-                            
-
-                          }
-                
-
-                  Alert.alert(
-                  '提示',
-                  tijiaomessage,
-                  [
-                    // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                    // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                    {text: '确定', onPress: () => console.log('OK Pressed')},
-                  ],
-                  { cancelable: false }
-                )
-              
-            })
-            .catch(err=>{
-              Alert.alert(
-                '提示',
-                '您的网络不好',
-                [
-                  // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                  // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                  {text: '确定', onPress: () => console.log('OK Pressed')},
-                ],
-                { cancelable: false }
-              )
-            })
-      }else if(this.props.ID==2){
-        axios.get(`${url}/Invoice/AddFlag?id=${this.props.fahuodanid}`)
+      // alert(this.props.listindex.id)
+      axios.get(`${url}/Invoice/AddFlag?id=${this.props.listindex.id}`)
         .then(res=>{
           if(res.data==true){
-              Alert.alert(
-                '提示',
-                '提交完成',
-                [
-                  // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                  // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                  {text: '确定', onPress: () => console.log('OK Pressed')},
-                ],
-                { cancelable: false }
-              )
-            }else{
-             
-              Alert.alert(
-                '提示',
-                '提交失败',
-                [
-                  // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                  // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                  {text: '确定', onPress: () => console.log('OK Pressed')},
-                ],
-                { cancelable: false }
-              )
-            }
+            alert("提交完成")
+          }else{
+            alert("提交失败")
+          }
         })
-        .catch(err=>{
-          Alert.alert(
-            '提示',
-            '您的网络不好',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
-        })
-      }
-      
+        .catch(err=>console.log(" "))
     }
 
     close(){
@@ -573,65 +305,32 @@ class mydata extends React.Component{
     chexiaozuihouyige(){
       let data={
         UserInfoID:this.props.userInfoIDD,
-        id:this.props.fahuodanid
+        id:this.props.listindex.id
       }
        axios.post(`${url}/invoice/TransferGroupNo`,data)
         .then(res=>{
           if(res.data.result==true){
-            chexiaozuihoumessage="撤销最后一兜成功！"
-            Alert.alert(
-              '提示',
-              chexiaozuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
+            alert(res.data.message);
              this.setState({
                 // count:this.state.count-1,
                 countcounts:this.state.countcounts-1,
                 zhuanyizuihouyige:false
               }) 
           }else{
-            chexiaozuihoumessage="此发货单下没有网兜，无法撤销！"
-            chexiaozuihoumessage="此理货员名下没有网兜，无法撤销！"
-            chexiaozuihoumessage="撤销最后一兜失败！"
-            Alert.alert(
-              '提示',
-              chexiaozuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
+            alert(res.data.message);
           }
         })
-        .catch(err=>{
-          Alert.alert(
-            '提示',
-            '您的网络不好',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
-        })
+        .catch(err=>console.log(err))
     }
 // 撤销某一兜
     chexiaomouyige(){
       // Subscription.remove()
-      let mydataid=this.props.fahuodanid;
+      let mydataid=this.props.listindex.id;
       let mydatauserInfoID=this.props.userInfoIDD;
       Actions.chexiaomouyige({mydataid,mydatauserInfoID})
       // let data={
       //   userInfoID:this.props.userInfoIDD,
-      //   id:this.props.fahuodanid,
+      //   id:this.props.listindex.id,
       //   revokeQRCode:this.state.SCANS.toString()
       // }
        // axios.post(`${url}/invoice/RevokeQRCode`,data)
@@ -664,83 +363,33 @@ class mydata extends React.Component{
             GetListByUserInfoIDlist:res.data
           })
         })
-        .catch(err=>{
-          Alert.alert(
-            '提示',
-            '您的网络不好',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
-        })
+        .catch(err=>{console.log(' ')})
     }
 
     checkboxx(index,item){
         // let checkboxxid=this.state.GetListByUserInfoIDlist[index].id;
         // let userInfoID=this.props.userInfoIDD;
-        // let id=this.props.fahuodanid;
+        // let id=this.props.listindex.id;
         // alert([checkboxxid,id,userInfoID])
         let data={
           userInfoID:this.props.userInfoIDD,
-          id:this.props.fahuodanid,
+          id:this.props.listindex.id,
           newID:this.state.GetListByUserInfoIDlist[index].id
         }
         axios.post(`${url}/invoice/TransferGroupNo`,data)
         .then(res=>{
           if (res.data.result==true) {
-            
-            zhuanyizuihoumessage="转移最后一兜成功！"
-            Alert.alert(
-              '提示',
-              zhuanyizuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
+              alert(res.data.message);
                this.setState({
                 // count:this.state.count-1,
                 countcounts:this.state.countcounts-1,
                 zhuanyizuihouyige:false
               }) 
           }else{
-            zhuanyizuihoumessage="此单没有最后一兜，无法转移！"
-            zhuanyizuihoumessage="此理货员名下没有最后一兜，无法转移！"
-            zhuanyizuihoumessage="新交货单已经发运，无法转移！"
-            zhuanyizuihoumessage="新交货单没有发运物料信息！"
-            zhuanyizuihoumessage="最后一个网兜没有二维码信息！"
-            zhuanyizuihoumessage="最后一个网兜物料与新交货单不符！"
-            zhuanyizuihoumessage="转移最后一兜失败！"
-
-            Alert.alert(
-              '提示',
-              zhuanyizuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
+              alert(res.data.message);
           }
         })
-        .catch(err=>{
-          Alert.alert(
-            '提示',
-            '您的网络不好',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
-        })
+        .catch(err=>console.log(err))
     }
     quxiaozhuanyi(){
       this.setState({
@@ -760,38 +409,27 @@ class mydata extends React.Component{
       if(this.state.fendai.trim()!=''){
         //alert(2)
         let data={
-          id:this.props.fahuodanid,
+          id:this.props.listindex.id,
           memo:this.state.fendai,
         }
         axios.post(`${url}/invoice/QuantitySum`,data)
           .then(res=>this.setState({
             zongdaishu:res.data.quantity
           })
-          ).catch(err=>{
-            Alert.alert(
-              '提示',
-              '您的网络不好',
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
-          })
+          ).catch(err=>alert(err))
       }
       
     }
 
   render(){
-    //alert('我的待发运')
+
     let jisuandaishu=<View>
                         <View style={{display:'flex',flexDirection:'row', justifyContent:'space-around'}}>
                           <TextInput
                             style={{width:width-120,borderColor:'#aaa',borderWidth:1,marginTop:20,fontSize:20,marginLeft:10,lineHeight:50}}
                             value={this.state.fendai}
                             underlineColorAndroid='transparent'
-                            autoFocus={false}
+                            autoFocus={true}
                             multiline = {true}
                             keyboardType='numeric'
                             placeholder="请输入袋数,以‘+’分隔"
@@ -825,7 +463,7 @@ class mydata extends React.Component{
                 <Text style={{width:0.15*width,fontSize:22,textAlign:'left',color:'#f00'}}>{this.state.countcounts}</Text>
             </View>
             {jisuandaishu}
-            {/* <View style={{width:width}}><Text style={{fontSize:30,color:"#f00",textAlign:'center'}}>{this.state.alert}</Text></View> */}
+            <View style={{width:width}}><Text style={{fontSize:30,color:"#f00",textAlign:'center'}}>{this.state.alert}</Text></View>
             <View style={styles.itemss}>
                 <Image source={require('../img/sx.png')} style={{width:30,height:30}}/>
                 <Text style={{width:0.85*width,fontSize:24,textAlign:'center',color:'red'}} onPress={this.cxsx.bind(this)}>撤销某一兜后请务必<Text style={{fontSize:30,textAlign:'center',color:'red'}}>点击这里</Text>进行刷新</Text>
@@ -902,9 +540,9 @@ class mydata extends React.Component{
                 <View style={styles.adminn}>
                   <Text style={styles.adminbtnntext} onPress={this.chexiaozuihouyige.bind(this)}>撤销最后一兜</Text>
                 </View>
-                {/* <View style={styles.adminn}>
+                <View style={styles.adminn}>
                     <Text style={styles.adminbtnntext} onPress={this.chexiaomouyige.bind(this)}>撤销某一兜</Text>
-                </View> */}
+                </View>
                 <View style={styles.adminn}>
                     <Text style={styles.adminbtnntext} onPress={this.zhuanyizuihouyige.bind(this)}>转移最后一兜</Text>
                 </View>
@@ -913,9 +551,9 @@ class mydata extends React.Component{
              
            
 
-            {/* <View style={styles.adminn}>
+            <View style={styles.adminn}>
                 <Text style={styles.adminbtnntext} onPress={this.canclequxiao.bind(this)}>取 消 关 联</Text>
-            </View> */}
+            </View>
 
             <View style={styles.adminn}>
                 <Text style={styles.adminbtnntext} onPress={this.finish.bind(this)}>确 定 完 成</Text>
@@ -941,7 +579,6 @@ class mydata extends React.Component{
                               <View style={styles.viewmodalbody} key={index}>
                                 <Text style={styles.viewmodalbodytext} numberOfLines={2}>品类{item ? (item.category ? (item.category.describe ? item.category.describe :'') : '') :''}</Text>
                                 <Text style={styles.viewmodalbodytext} numberOfLines={2}>质量{item.rule ? item.rule :''}</Text>
-                                <Text style={styles.viewmodalbodytext} numberOfLines={2}>人员{item.userInfoName ? item.userInfoName :''}</Text>
                               </View>
                               )
                             })

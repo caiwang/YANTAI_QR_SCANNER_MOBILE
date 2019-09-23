@@ -43,7 +43,7 @@ public class ScanThread extends Thread {
         this.context=reactApplicationContext;
         mSerialPort = new SerialPort(port, baudrate, flags);
         mSerialPort.scaner_poweron();
-        mSerialPort.rfid_poweron();
+         mSerialPort.rfid_poweron();
         is = mSerialPort.getInputStream();
         os = mSerialPort.getOutputStream();
         try {
@@ -68,11 +68,12 @@ public class ScanThread extends Thread {
                 if (available > 0) {
                     Log.e(TAG, "available = " + available);
                     size = is.read(buffer);
-                    if (size > 0) {
+                    if (size > 0 ) {
                         sendMessege(buffer, size, SCAN,context);
                     }
                     Thread.sleep(50);
                 }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

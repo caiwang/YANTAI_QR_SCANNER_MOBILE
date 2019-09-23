@@ -1,6 +1,6 @@
 import React,{component,PropTypes} from 'react'
-import { Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,ToastAndroid} from 'react-native';
-import { Actions,Alert } from 'react-native-router-flux';
+import { Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,ToastAndroid,Alert} from 'react-native';
+import { Actions} from 'react-native-router-flux';
 import axios from 'axios';
 import {url} from '../config';
 import Loading from './Loading';
@@ -49,8 +49,40 @@ class Message extends React.Component{
     componentDidMount(){
       //alert(this.props.listindex.id)
       axios.get(`${url}/Invoice/get/${this.props.listindex.id}`)
-      .then(res=>{this.setState({CodeList:res.data.data.codeList,invoiceShipmentList:res.data.data.invoiceShipmentList,count:res.data.data.codeList.length,countcounts:res.data.data.groupNoList.length,no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,orderNo:res.data.data.orderNo,OrderTime:res.data.data.orderTime,CustomerNo:res.data.data.customerNo,DealerName:res.data.data.dealerName,DealerPostcord:res.data.data.dealerPostcord,DealerPlace:res.data.data.dealerPlace,ShipmentMode:res.data.data.shipmentMode,DeliveryMode:res.data.data.deliveryMode,PlateNumber:res.data.data.plateNumber,DriverName:res.data.data.driverName,DriverPhoneNo:res.data.data.driverPhoneNo});})
-      .catch(err=>console.log(err));
+      .then(res=>{
+        
+              this.setState({
+                CodeList:res.data.data.codeList,
+                invoiceShipmentList:res.data.data.invoiceShipmentList,
+                count:res.data.data.codeList.length,
+                countcounts:res.data.data.groupNoList.length,
+                no:res.data.data.no,InvoiceTime:res.data.data.invoiceTime,
+                orderNo:res.data.data.orderNo,
+                OrderTime:res.data.data.orderTime,
+                CustomerNo:res.data.data.customerNo,
+                DealerName:res.data.data.dealerName,
+                DealerPostcord:res.data.data.dealerPostcord,
+                DealerPlace:res.data.data.dealerPlace,
+                ShipmentMode:res.data.data.shipmentMode,
+                DeliveryMode:res.data.data.deliveryMode,
+                PlateNumber:res.data.data.plateNumber,
+                DriverName:res.data.data.driverName,
+                DriverPhoneNo:res.data.data.driverPhoneNo
+              });
+            }
+          )
+      .catch(err=>{
+        Alert.alert(
+        '提示',
+        '您的网络不好',
+        [
+          // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+          // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          {text: '确定', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+      });
       //alert('此发货单还没有扫描，按下F5开始扫描')
       // const counts=new Array();
       // DeviceEventEmitter.addListener('EventName', (res) => {
@@ -87,12 +119,26 @@ class Message extends React.Component{
               })
          }
 
+
+        
+
       }
     
 
     finish(){
       if (this.state.CodeList==null || this.state.CodeList=="") {
-          alert("你还没有扫码,暂时无法提交");
+         
+          Alert.alert(
+            '提示',
+            '您还没有扫码，暂时无法提交',
+            [
+              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: '确定', onPress: () => console.log('OK Pressed')},
+            ],
+            { cancelable: false }
+          )
+          
           return false;
       }else{
         //alert(this.state.CodeList)
@@ -113,7 +159,18 @@ class Message extends React.Component{
                       // this.setState({zongzhiliang:zongzhiliang});
                     }
               )
-        .catch(err=>alert("您的网络不好"))          
+        .catch(err=>{
+          Alert.alert(
+          '提示',
+          '您的网络不好',
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+            {text: '确定', onPress: () => console.log('OK Pressed')},
+          ],
+          { cancelable: false }
+        )
+        })          
       }
     }
 
@@ -140,12 +197,41 @@ class Message extends React.Component{
       axios.get(`${url}/Invoice/AddFlag?id=${this.props.listindex.id}`)
         .then(res=>{
           if(res.data==true){
-            alert("提交完成")
+            Alert.alert(
+              '提示',
+              '提交完成',
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {text: '确定', onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            )
           }else{
-            alert("提交失败")
+            Alert.alert(
+              '提示',
+              '提交失败',
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {text: '确定', onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            )
           }
         })
-        .catch(err=>alert("您的网络不好"))
+        .catch(err=>{
+          Alert.alert(
+            '提示',
+            '您的网络不好',
+            [
+              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: '确定', onPress: () => console.log('OK Pressed')},
+            ],
+            { cancelable: false }
+          )
+        })
     }
 
     close(){

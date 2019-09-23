@@ -1,5 +1,5 @@
 import React,{component,PropTypes} from 'react'
-import {Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,Alert} from 'react-native';
+import {Modal,View,Text,TextInput,Image,ImageBackground,Dimensions,Button,ScrollView,NativeModules, DeviceEventEmitter,AsyncStorage,Alert,AppState} from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import axios from 'axios';
 import {url} from '../config';
@@ -7,14 +7,16 @@ import CheckBox from 'react-native-checkbox';
 import Loading from './Loading';
 import Sound from 'react-native-sound';
 
+
 let demoAudio = require('./112.m4a');//支持众多格式
-let message=''
-let tijiaomessage=''
-let chexiaozuihoumessage=''
-let zhuanyizuihoumessage=''
 //let listener
 const scanToastAndroid = NativeModules.ScanToastAndroid;
-class myundata extends React.Component{
+let message=''
+let tijiaomessage=''
+let quxiaomessage=''
+let chexiaozuihoumessage=''
+let zhuanyizuihoumessage=''
+class chuyunyuan extends React.Component{
     constructor(props) {
       super(props);
       this.state={
@@ -57,25 +59,45 @@ class myundata extends React.Component{
         ShippingNumber:'',
         ShippingDescribe:'',
         fendai:'',
-        zongdaishu:''
+        zongdaishu:'',
+        zhuanyizuihouyige:false,
+        currentAppState: AppState.currentState,
       };
     }
-    
-    componentWillUnMount(){
+
+    componentWillUnmount(){
       //alert('componentWillUnMount')
       this.listener.remove()
-      //alert('我的未完成1')
+      // AppState.removeEventListener('change', this._handleAppStateChange);
+      //DeviceEventEmitter.removeAllListeners('EventName')
+      //console.log('end')
+     
     }
+
+    _handleAppStateChange (appState) {
+      //alert(appState);
+      if (appState == 'active') {
+          alert('App has come to the foreground!')
+      }
+      this.setState({currentAppState: appState});
+  }
+
  
-     async componentDidMount(){
+     componentDidMount(){
+       
+     // alert(this.props.fayundanID)
+      //alert(this.props.renyuandengluid)
+       //alert(this.state.currentAppState)
+       
+      // AppState.addEventListener('change', this._handleAppStateChange);
       
-      //alert('我的未完成2')
-      this.setState({
-        Loading:false,
-      })
-      axios.get(`${url}/Invoice/get/${this.props.fahuodanid}`)
+
+      
+      //alert(Actions.state.index)
+      //alert(this.props.zhuangtai)
+      let id=this.props.fayundanID
+      axios.get(`${url}/Invoice/get/${this.props.fayundanID}`)
       .then(res=>{
-        //alert('componentDidMount12')
         //alert(res.data.data.memo)
         this.setState({
         CodeList:res.data.data.codeList,
@@ -97,9 +119,7 @@ class myundata extends React.Component{
         DriverPhoneNo:res.data.data.driverPhoneNo,
         fendai:res.data.data.memo,
         zongdaishu:res.data.data.quantity
-      });
-     
-    })
+      });})
       .catch(err=>{
         Alert.alert(
           '提示',
@@ -112,123 +132,138 @@ class myundata extends React.Component{
           { cancelable: false }
         )
       });
-      //alert(111111)
       //alert('此发货单进行了部分扫描，按下F5继续扫描')
-      // if (Actions.state.index==2) {
+       //if (Actions.state.index==1) {
+        // alert(Actions.state.index)
+
+        
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
         this.listener=DeviceEventEmitter.addListener('EventName', (res) => {
-          //alert('我的未完成3')
-          
+         // console.log('addListener')
             let countss=new Array();
             this.setState({ obj: res });
             let scanres=this.state.obj.SCAN;
+            //alert(res.SCAN)
                 countss.push(scanres);
             let countssets=new Set(countss);
             let countarrays=Array.from(countssets);
             let newcountarrays=countarrays;
-            
+            //alert(newcountarray)
             this.setState({ SCANSs: newcountarrays });
             if (newcountarrays.length==0) {
-              this.setState({
-                alert:'没有二维码'
-              })
-              
+             this.setState({
+              alert:'没有二维码'
+             })
+             // this.setState({CodeList:newcountarray});
               return false;
             }else{
               this.setState({
-              alert:'扫到二维码',
-              CodeList:newcountarrays
-             })
-
+                alert:'扫到二维码',
+                CodeList:newcountarrays
+              })
+              //alert(this.state.CodeList)
              let data={
               CodeList:this.state.CodeList,
-              id:this.props.fahuodanid,
-              userInfoID:this.props.userInfoIDD,
-              //id:this.props.fayundanID
+              id:this.props.fayundanID,
+              userInfoID:this.props.renyuandengluid
              }
-             //alert(this.props.fahuodanid)
-
-            //if(this.state.CodeList.length==1&&data!=null){
-              
-                  axios.post(`${url}/Invoice/UpdateQRcode`,data)
+            
+    
+             if(this.state.CodeList.length!=0&&data!=null){
+              //alert(1111)
+                
+                 
+                   axios.post(`${url}/Invoice/UpdateQRcode`,data)
                      .then(res=>{
+                       
+                      //alert(res.data.message)
+                      
+                      
+                       let abc=res.data.message
+                       switch(abc){
+                         case "网兜扫描成功":message='网兜扫描成功';break;
+                         case "此交货单没有装运物料！":message='此交货单没有装运物料！';break;
+                         case "此二维码不存在！":message='此二维码不存在！';break;
+                         case "网兜重复扫描！":message='网兜重复扫描！';break;
+                         case "网兜已被扫描！":message='网兜已被扫描！';break;
+                         case "该品类已经发运完成，请勿多扫！":message='该品类已经发运完成，请勿多扫！';break;
+                         case "该订单装运项目已经发运完成！":message='该订单装运项目已经发运完成！';break;
+                         case "此网兜所属物料与交货单的装运项目不符！":message='此网兜所属物料与交货单的装运项目不符！';break;
+    
+                       } 
+                       
+                       
+                       
+                       
+                       
+                       if(res.data.message=="网兜扫描成功" || res.data.message=="该订单装运项目已经发运完成！"){
+                           
+                             //提示音
+                             const s = new Sound(demoAudio, (e) => {
+                                 if (e) {
+                                     console.log('播放失败');
+                                     return;
+                                 }
+                                 s.play(() => s.release());
+                             });
+    
                          
-                        
-                         let abc=res.data.message
-                         switch(abc){
-                           case "网兜扫描成功":message='网兜扫描成功';break;
-                           case "此交货单没有装运物料！":message='此交货单没有装运物料！';break;
-                           case "此二维码不存在！":message='此二维码不存在！';break;
-                           case "网兜重复扫描！":message='网兜重复扫描！';break;
-                           case "网兜已被扫描！":message='网兜已被扫描！';break;
-                           case "该品类已经发运完成，请勿多扫！":message='该品类已经发运完成，请勿多扫！';break;
-                           case "该订单装运项目已经发运完成！":message='该订单装运项目已经发运完成！';break;
-                           case "此网兜所属物料与交货单的装运项目不符！":message='此网兜所属物料与交货单的装运项目不符！';break;
-
-                         } 
+                         
+                       }
                        
-                       
-                       
-                         if(message=="网兜扫描成功" || message=="该订单装运项目已经发运完成！"){
-                             
-                               //提示音
-                               const s = new Sound(demoAudio, (e) => {
-                                   if (e) {
-                                       console.log('播放失败');
-                                       return;
-                                   }
-                                   s.play(() => s.release());
-                               });
-
-                               //提示弹窗
+    
+                       //提示弹窗
+                       if(message!=""){
+                         Alert.alert(
+                             '提示',
+                             message,
+                             [
+                               // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                               // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                               {text: '确定', onPress: () => console.log('OK Pressed')},
                                
-                                 Alert.alert(
-                                     '提示',
-                                     message,
-                                     [
-                                       // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                       // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                       {text: '确定', onPress: () => console.log('OK Pressed')},
-                                     ],
-                                     { cancelable: false }
-                                   )
-                                   
-                             
-                       
-                           }else{
-                                 //提示弹窗
-                                 if(message!=""){
-                                   Alert.alert(
-                                       '提示',
-                                       message,
-                                       [
-                                         // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                         // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                         {text: '确定', onPress: () => console.log('OK Pressed')},
-                                       ],
-                                       { cancelable: false }
-                                     )
-                                   }
-                                   
-                           }
+                             ],
+                             { cancelable: false }
+                           )
+                         }
 
-                           
-                           
+                         if(res.data.message==null){
+
+                         }else{
+                            this.setState({
+                              count:res.data.invoice ? (res.data.invoice.codeList.length==0?0:res.data.invoice.codeList.length) :'',
+                              countcounts:res.data.invoice ? (res.data.invoice.groupNoList.length==0?0:res.data.invoice.groupNoList.length) :''
+                          })
+                        }
 
                          
-
-                             this.setState({
-                                 count:res.data.invoice.codeList.length==0?0:res.data.invoice.codeList.length,
-                                 countcounts:res.data.invoice.groupNoList.length==0?0:res.data.invoice.groupNoList.length
-                             })
-                            
-
-                        }
+                      
+    
+                       
+    
+                    
+    
+    
+                     }
                    )
                    .catch(err=>{
-                     //alert(error)
-                    //  Alert.alert(
+                     alert(err)
+                     //Alert.alert(
                     //    '提示',
-                    //    '您的网络不好1111',
+                    //    '您的网络不好',
                     //    [
                     //      // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
                     //      // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
@@ -238,27 +273,31 @@ class myundata extends React.Component{
                     //  )
                    })
                  
-                 //}
-            //  }else{
-            //    alert('未扫到二维码')
-            //  }
-
-
-
-
-
-
-
-
-
-
-
-
+               
+             }else{
+                //alert('未扫到二维码')
               }
+
+
+
+
+
+
+
+
+
+
+
+
+
+             }
+
+              //this.shuxin()
             
-            
-        });
-      // };
+              
+          }
+        );
+     
       
 
          if(this.state.invoiceShipmentList==null||this.state.invoiceShipmentList=="") {
@@ -273,11 +312,20 @@ class myundata extends React.Component{
 
       }
 
-     
+
+    
+
+
+      async shuxin(){
+        //await this.listener.remove()
+        await DeviceEventEmitter.removeListener(this.listener)
+        await this.componentDidMount()
+      }
+
 
 
       myundataUpdateQRcode(){
-        axios.get(`${url}/Invoice/get/${this.props.fahuodanid}`)
+        axios.get(`${url}/Invoice/get/${this.props.fayundanID}`)
       .then(res=>{
         //alert(res.data.data.memo)
         this.setState({
@@ -304,7 +352,7 @@ class myundata extends React.Component{
         this.setState({
           Loading:true
         })
-      axios.get(`${url}/Invoice/get/${this.props.fahuodanid}`)
+      axios.get(`${url}/Invoice/get/${this.props.fayundanID}`)
       .then(res=>{
         //alert(res.data.data.memo)
         this.setState({
@@ -342,27 +390,32 @@ class myundata extends React.Component{
         )
       });
       }
-   deletecode(){     
-      axios.get(`${url}/invoice/DeleteCodeByUserinfoID?id=${this.props.fayundanID}&userinfoID=${this.props.renyuandengluid}`)
+   deletecode(){ 
+
+      axios.get(`${url}/invoice/DeleteCode?id=${this.props.fayundanID}`)
       .then(res=>{
-        if(res.data.codeList.length==0 && res.data.groupNoList.length==0){
+        if(res.data.id>0 && res.data.codeList.length==0 && res.data.groupNoList.length==0){
           this.setState({
             count:0,
             countcounts:0,
-            alert:'没有二维码',
+            //alert:'没有二维码',
             CodeList:''
           })
-          Alert.alert(
-            '提示',
-            '取消完成',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
+
+           Alert.alert(
+              '提示',
+              '取消成功',
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {text: '确定', onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            )
           }else{
+            
+
+
             Alert.alert(
               '提示',
               '取消失败',
@@ -373,12 +426,25 @@ class myundata extends React.Component{
               ],
               { cancelable: false }
             )
+
           }
+          
+        })
+      .catch(err=>{
+        Alert.alert(
+          '提示',
+          '您的网络不好',
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+            {text: '确定', onPress: () => console.log('OK Pressed')},
+          ],
+          { cancelable: false }
+        )
       })
-      .catch(err=>console.log(' '))
     }
     
-    
+    //确定完成，弹出弹窗，展示信息
     finish(){
         let zongzhiliang=0;
         this.setState({
@@ -386,7 +452,7 @@ class myundata extends React.Component{
         })
         let data={
             // CodeList:this.state.CodeList
-            id:this.props.fahuodanid
+            id:this.props.fayundanID
           }
           axios.post(`${url}/invoice/GetGroupByID`,data)
             .then(res=>{this.setState({pinleizhiliang:res.data.data});
@@ -415,38 +481,45 @@ class myundata extends React.Component{
         
     }
 
+
+    //确定提交，真正的提交
     quedingtijiao(){
       this.setState({
         modalVisible:false
       })
-      
       if(this.props.ID==3){
-        // alert(this.props.fahuodanid)
-            axios.get(`${url}/Invoice/AddFlagLimit?id=${this.props.fahuodanid}&userInfoID=${this.props.userInfoIDD}`)
-            .then(res=>{
+
+      
+        if(this.props.zhuangtai=='wodedaifayun' || this.props.zhuangtai=='wodeweiwancheng'){
+          axios.get(`${url}/Invoice/AddFlagLimit?id=${this.props.fayundanID}&userInfoID=${this.props.renyuandengluid}`)
+          .then(res=>{
+
+            
+
 
               let abc=res.data.message
-              switch(abc){
-                case "此交货单已经发运完成，请勿重新提交！":tijiaomessage='此交货单已经发运完成，请勿重新提交！';break;
-                case "数量不符，不能提交！":tijiaomessage='数量不符，不能提交！';break;
-                case "提交失败":tijiaomessage='提交失败';break;
-                case "提交的交货单没有物料！":tijiaomessage='提交的交货单没有物料！';break;
-                case "提交成功":tijiaomessage='提交成功';break;
-                
+                        switch(abc){
+                          case "此交货单已经发运完成，请勿重新提交！":tijiaomessage='此交货单已经发运完成，请勿重新提交！';break;
+                          case "数量不符，不能提交！":tijiaomessage='数量不符，不能提交！';break;
+                          case "提交失败":tijiaomessage='提交失败';break;
+                          case "提交的交货单没有物料！":tijiaomessage='提交的交货单没有物料！';break;
+                          case "提交成功":tijiaomessage='提交成功';break;
+                          
 
-              }
-
-                  Alert.alert(
-                  '提示',
-                  tijiaomessage,
-                  [
-                    // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                    // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                    {text: '确定', onPress: () => console.log('OK Pressed')},
-                  ],
-                  { cancelable: false }
-                )
+                        }
               
+
+                Alert.alert(
+                '提示',
+                tijiaomessage,
+                [
+                  // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                  // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                  {text: '确定', onPress: () => console.log('OK Pressed')},
+                ],
+                { cancelable: false }
+              )
+          
             })
             .catch(err=>{
               Alert.alert(
@@ -460,17 +533,40 @@ class myundata extends React.Component{
                 { cancelable: false }
               )
             })
-      }else if(this.props.ID==2){
-        //alert(2222)
-        //alert(this.props.IDdweiwancheng)
-        axios.get(`${url}/Invoice/AddFlag?id=${this.props.fahuodanid}`)
-        .then(res=>{
+          }else{
 
-          //alert(res)
-          if(res.data==true){
+      
+            axios.get(`${url}/Invoice/AddFlag?id=${this.props.fayundanID}`)
+            .then(res=>{
+              if(res.data==true){
+                  Alert.alert(
+                    '提示',
+                    '提交完成',
+                    [
+                      // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                      // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: '确定', onPress: () => console.log('OK Pressed')},
+                    ],
+                    { cancelable: false }
+                  )
+                }else{
+                
+                  Alert.alert(
+                    '提示',
+                    '提交失败',
+                    [
+                      // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                      // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: '确定', onPress: () => console.log('OK Pressed')},
+                    ],
+                    { cancelable: false }
+                  )
+                }
+            })
+            .catch(err=>{
               Alert.alert(
                 '提示',
-                '提交完成',
+                '您的网络不好',
                 [
                   // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
                   // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
@@ -478,33 +574,50 @@ class myundata extends React.Component{
                 ],
                 { cancelable: false }
               )
-            }else{
-             
-              Alert.alert(
-                '提示',
-                '提交失败',
-                [
-                  // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                  // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                  {text: '确定', onPress: () => console.log('OK Pressed')},
-                ],
-                { cancelable: false }
-              )
-            }
-        })
-        .catch(err=>{
-          Alert.alert(
-            '提示',
-            '您的网络不好',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
-        })
-      }
+            })
+
+          }
+        }else{
+          axios.get(`${url}/Invoice/AddFlag?id=${this.props.fayundanID}`)
+          .then(res=>{
+            if(res.data==true){
+                Alert.alert(
+                  '提示',
+                  '提交完成',
+                  [
+                    // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                    // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                    {text: '确定', onPress: () => console.log('OK Pressed')},
+                  ],
+                  { cancelable: false }
+                )
+              }else{
+              
+                Alert.alert(
+                  '提示',
+                  '提交失败',
+                  [
+                    // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                    // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                    {text: '确定', onPress: () => console.log('OK Pressed')},
+                  ],
+                  { cancelable: false }
+                )
+              }
+          })
+          .catch(err=>{
+            Alert.alert(
+              '提示',
+              '您的网络不好',
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {text: '确定', onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            )
+          })
+        }
     }
 
     close(){
@@ -514,87 +627,110 @@ class myundata extends React.Component{
       
     }
 
+
+    //计算
     onPressLearnMore(){
       //alert(1)
       if(this.state.fendai.trim()!=''){
         //alert(2)
         let data={
-          id:this.props.fahuodanid,
+          id:this.props.fayundanID,
           memo:this.state.fendai,
         }
         axios.post(`${url}/invoice/QuantitySum`,data)
           .then(res=>this.setState({
             zongdaishu:res.data.quantity
           })
-          ).catch(err=>alert(err))
+          ).catch(err=>{
+            Alert.alert(
+              '提示',
+              '您的网络不好',
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {text: '确定', onPress: () => console.log('OK Pressed')},
+              ],
+              { cancelable: false }
+            )
+          })
       }
       
     }
 
 
 // 撤销最后一兜
-    chexiaozuihouyigee(){
-      let data={
-        UserInfoID:this.props.userInfoIDD,
-        id:this.props.fahuodanid
+chexiaozuihouyige(){
+  let data={
+    UserInfoID:this.props.renyuandengluid,
+    id:this.props.fayundanID
+  }
+   axios.post(`${url}/invoice/TransferGroupNo`,data)
+    .then(res=>{
+      if(res.data.result==true){
+        chexiaozuihoumessage="撤销最后一兜成功！"
+        Alert.alert(
+          '提示',
+          chexiaozuihoumessage,
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+            {text: '确定', onPress: () => console.log('OK Pressed')},
+          ],
+          { cancelable: false }
+        )
+         this.setState({
+            // count:this.state.count-1,
+            countcounts:this.state.countcounts-1,
+            zhuanyizuihouyige:false
+          }) 
+      }else{
+        
+
+        let abc=res.data.message
+                          switch(abc){
+                            case "此发货单下没有网兜，无法撤销！":chexiaozuihoumessage="此发货单下没有网兜，无法撤销！";break;
+                            case "此理货员名下没有网兜，无法撤销！":chexiaozuihoumessage="此理货员名下没有网兜，无法撤销！";break;
+                            case "撤销最后一兜失败！":chexiaozuihoumessage="撤销最后一兜失败！";break;
+                            
+                            
+
+                          }
+        Alert.alert(
+          '提示',
+          chexiaozuihoumessage,
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+            {text: '确定', onPress: () => console.log('OK Pressed')},
+          ],
+          { cancelable: false }
+        )
       }
-       axios.post(`${url}/invoice/TransferGroupNo`,data)
-        .then(res=>{
-          if(res.data.result==true){
-            chexiaozuihoumessage="撤销最后一兜成功！"
-            Alert.alert(
-              '提示',
-              chexiaozuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
-            this.setState({
-                // count:this.state.count-1,
-                countcounts:this.state.countcounts-1,
-                zhuanyizuihouyigee:false
-              }) 
-          }else{
-            chexiaozuihoumessage="此发货单下没有网兜，无法撤销！"
-            chexiaozuihoumessage="此理货员名下没有网兜，无法撤销！"
-            chexiaozuihoumessage="撤销最后一兜失败！"
-            Alert.alert(
-              '提示',
-              chexiaozuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
-          }
-        })
-        .catch(err=>{
-          Alert.alert(
-            '提示',
-            '您的网络不好',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => console.log('OK Pressed')},
-            ],
-            { cancelable: false }
-          )
-        })
-    }
+    })
+    .catch(err=>{
+      Alert.alert(
+        '提示',
+        '您的网络不好',
+        [
+          // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+          // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          {text: '确定', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+    })
+}
+
+
 // 撤销某一兜
     chexiaomouyigee(){
         // Subscription.remove()
-       let myundataid=this.props.listindex.id;
+       let myundataid=this.props.fayundanID;
        let myundatauserInfoID=this.props.userInfoIDD;
         Actions.chexiaomouyigee({myundataid,myundatauserInfoID})
       // let data={
       //   userInfoID:this.props.userInfoIDD,
-      //   id:this.props.listindex.id,
+      //   id:this.props.fayundanID,
       //   revokeQRCode:this.state.SCANSs.toString()
       // }
       //  axios.post(`${url}/invoice/RevokeQRCode`,data)
@@ -612,6 +748,8 @@ class myundata extends React.Component{
       //   })
       //   .catch(err=>{console.log(' ')})
     }
+
+
 // 转移最后一个 弹出list列表
     zhuanyizuihouyigee(){
       this.setState({
@@ -643,52 +781,24 @@ class myundata extends React.Component{
     checkboxxx(index,item){
         // let checkboxxxid=this.state.GetListByUserInfoIDlists[index].id;
         // let userInfoID=this.props.userInfoIDD;
-        // let id=this.props.listindex.id;
+        // let id=this.props.fayundanID;
         // alert([checkboxxid,id,userInfoID])
         let data={
           userInfoID:this.props.userInfoIDD,
-          id:this.props.listindex.id,
+          id:this.props.fayundanID,
           newID:this.state.GetListByUserInfoIDlists[index].id
         }
         axios.post(`${url}/invoice/TransferGroupNo`,data)
         .then(res=>{
           if (res.data.result==true) {
-              
-            zhuanyizuihoumessage="转移最后一兜成功！"
-            Alert.alert(
-              '提示',
-              zhuanyizuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
+              alert(res.data.message);
                this.setState({
                 // count:this.state.count-1,
                 countcounts:this.state.countcounts-1,
                 zhuanyizuihouyigee:false
               }) 
           }else{
-            zhuanyizuihoumessage="此单没有最后一兜，无法转移！"
-            zhuanyizuihoumessage="此理货员名下没有最后一兜，无法转移！"
-            zhuanyizuihoumessage="新交货单已经发运，无法转移！"
-            zhuanyizuihoumessage="新交货单没有发运物料信息！"
-            zhuanyizuihoumessage="最后一个网兜没有二维码信息！"
-            zhuanyizuihoumessage="最后一个网兜物料与新交货单不符！"
-            zhuanyizuihoumessage="转移最后一兜失败！"
-
-            Alert.alert(
-              '提示',
-              zhuanyizuihoumessage,
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: '确定', onPress: () => console.log('OK Pressed')},
-              ],
-              { cancelable: false }
-            )
+              alert(res.data.message);
           }
         })
         .catch(err=>console.log(err))
@@ -704,9 +814,7 @@ class myundata extends React.Component{
         })
     }
   render(){
-    
-    //alert('我的未完成')
-
+    //alert('储运员')
     let jisuandaishu=<View>
                         <View style={{display:'flex',flexDirection:'row', justifyContent:'space-around'}}>
                           <TextInput
@@ -735,6 +843,62 @@ class myundata extends React.Component{
                         
                         
                     </View>
+
+      let buttonsum=<View></View>
+      if(this.props.zhuangtai=='daifayun' || this.props.zhuangtai=='weiwancheng'){
+        buttonsum=<View>
+            {
+              this.state.countcounts>1?
+              <View>
+                {/* <View style={styles.adminn}>
+                  <Text style={styles.adminbtnntext} onPress={this.chexiaozuihouyigee.bind(this)}>撤销最后一兜</Text>
+                </View> */}
+                {/* <View style={styles.adminn}>
+                    <Text style={styles.adminbtnntext} onPress={this.chexiaomouyigee.bind(this)}>撤销某一兜</Text>
+                </View> */}
+                {/* <View style={styles.adminn}>
+                    <Text style={styles.adminbtnntext} onPress={this.zhuanyizuihouyigee.bind(this)}>转移最后一兜</Text>
+                </View> */}
+              </View>:null
+            }
+            <View style={styles.adminn}>
+                <Text style={styles.adminbtnntext} onPress={this.deletecode.bind(this)}>取 消 关 联</Text>
+            </View>
+
+            <View style={styles.adminn}>
+                <Text style={styles.adminbtnntext} onPress={this.finish.bind(this)}>确 定 完 成</Text>
+            </View>
+      </View>
+      }else if(this.props.zhuangtai=='wodedaifayun' || this.props.zhuangtai=='wodeweiwancheng'){
+        buttonsum=<View>
+                    {
+                      this.state.countcounts>1?
+                      <View>
+                        <View style={styles.adminn}>
+                          <Text style={styles.adminbtnntext} onPress={this.chexiaozuihouyige.bind(this)}>撤销最后一兜</Text>
+                        </View>
+                        {/* <View style={styles.adminn}>
+                            <Text style={styles.adminbtnntext} onPress={this.chexiaomouyige.bind(this)}>撤销某一兜</Text>
+                        </View> */}
+                        {/* <View style={styles.adminn}>
+                            <Text style={styles.adminbtnntext} onPress={this.zhuanyizuihouyige.bind(this)}>转移最后一兜</Text>
+                        </View> */}
+                      </View>:null
+                    }
+                    
+                  
+
+                    {/* <View style={styles.adminn}>
+                        <Text style={styles.adminbtnntext} onPress={this.canclequxiao.bind(this)}>取 消 关 联</Text>
+                    </View> */}
+
+                    <View style={styles.adminn}>
+                        <Text style={styles.adminbtnntext} onPress={this.finish.bind(this)}>确 定 完 成</Text>
+                    </View>
+          </View>
+      }else{
+        buttonsum=<View></View>
+      }
     return(
       <ScrollView style={styles.flexbox}>
       {
@@ -748,11 +912,11 @@ class myundata extends React.Component{
             </View>
 
             {jisuandaishu}
-             <View style={{width:width}}><Text style={{fontSize:30,color:"#f00",textAlign:'center'}}>{this.state.alert}</Text></View>
+             {/* <View style={{width:width}}><Text style={{fontSize:30,color:"#f00",textAlign:'center'}}>{this.state.alert}</Text></View> */}
             <View>
             <View style={styles.itemss}>
                 <Image source={require('../img/sx.png')} style={{width:30,height:30}}/>
-                <Text style={{width:0.85*width,fontSize:24,textAlign:'center',color:'red'}} onPress={this.myundatasx.bind(this)}>撤销某一兜后请务必<Text style={{fontSize:30,textAlign:'center',color:'red'}}>点击这里</Text>进行刷新</Text>
+                <Text style={{width:0.85*width,fontSize:24,textAlign:'center',color:'red'}} onPress={this.myundatasx.bind(this)}>请<Text style={{fontSize:30,textAlign:'center',color:'red'}}>点击这里</Text>进行刷新</Text>
             </View>
               <View style={styles.items}><Text style={styles.fontwidths}>交货单号</Text><Text style={styles.inputwidth}>
                   {this.state.no}
@@ -763,30 +927,7 @@ class myundata extends React.Component{
               <View style={styles.items}><Text style={styles.fontwidths}>订单号</Text><Text style={styles.inputwidth}>
                   {this.state.orderNo}
               </Text></View>
-              {/*
-              <View style={styles.items}><Text style={styles.fontwidths}>订单日期</Text><Text style={styles.inputwidth}>
-                  {this.state.OrderTime}
-              </Text></View>
               
-              <View style={styles.items}><Text style={styles.fontwidths}>客户编号</Text><Text style={styles.inputwidth}>
-                  {this.state.CustomerNo}
-              </Text></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>经销商名称</Text><Text style={styles.inputwidth}>
-                  {this.state.DealerName}
-              </Text></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>经销商邮编</Text><Text style={styles.inputwidth}>
-                  {this.state.DealerPostcord}
-              </Text></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>经销商地址</Text><Text style={styles.inputwidth}>
-                  {this.state.DealerPlace}
-              </Text></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>装运方式</Text><Text style={styles.inputwidth}>
-                  {this.state.ShipmentMode}
-              </Text></View>
-              <View style={styles.items}><Text style={styles.fontwidths}>交货方式</Text><Text style={styles.inputwidth}>
-                  {this.state.DeliveryMode}
-              </Text></View>
-              */}
 
 
               <View style={styles.items}><Text style={styles.fontwidths}>车牌号</Text><Text style={styles.inputwidth}>
@@ -843,29 +984,9 @@ class myundata extends React.Component{
               <View style={styles.adminnmargin}>
                 
             </View>
-            {
-              this.state.countcounts>0?
-              <View>
-                <View style={styles.adminn}>
-                  <Text style={styles.adminbtnntext} onPress={this.chexiaozuihouyigee.bind(this)}>撤销最后一兜</Text>
-                </View>
-                {/* <View style={styles.adminn}>
-                    <Text style={styles.adminbtnntext} onPress={this.chexiaomouyigee.bind(this)}>撤销某一兜</Text>
-                </View> */}
-                <View style={styles.adminn}>
-                    <Text style={styles.adminbtnntext} onPress={this.zhuanyizuihouyigee.bind(this)}>转移最后一兜</Text>
-                </View>
-              </View>:null
-            }
-            {/* <View style={styles.adminn}>
-                <Text style={styles.adminbtnntext} onPress={this.deletecode.bind(this)}>取 消 关 联</Text>
-            </View> */}
-
-            <View style={styles.adminn}>
-                <Text style={styles.adminbtnntext} onPress={this.finish.bind(this)}>确 定 完 成</Text>
-            </View>
-
-
+                  {buttonsum}
+                   
+               
             <Modal
                   animationType='slide'
                   transparent={true}
@@ -919,7 +1040,7 @@ class myundata extends React.Component{
             <View style={{width:width,flexDirection:'row',justifyContent:"center",alignItems:'center'}}>
               <Text style={{color:'red',fontSize:27}}>进行勾选转移前，请您务必仔细查看发货单号！避免转移错误</Text>
             </View>
-           {
+              {
                 this.state.GetListByUserInfoIDlists==[]?<Text>空</Text>:this.state.GetListByUserInfoIDlists.map((item,index)=>{
                   return(
                   <View style={styles.items} key={index}>
@@ -1089,7 +1210,7 @@ const styles={
 
 }
 
-export default myundata
+export default chuyunyuan
 
 
 
@@ -1097,3 +1218,12 @@ export default myundata
 
 
 
+// if(res.data.message=='此交货单已经发运，无法清除！'){
+//   quxiaomessage='此交货单已经发运，无法清除！'
+// }else if(res.data.message=='此理货员下没有扫码，无法清除！'){
+// quxiaomessage='此理货员下没有扫码，无法清除！'
+// }else if(res.data.message=='此理货员下没有网兜，无法清除！'){
+// quxiaomessage='此理货员下没有网兜，无法清除！'
+// }else if(res.data.message=='清除失败!'){
+// quxiaomessage='清除失败!'
+// }
