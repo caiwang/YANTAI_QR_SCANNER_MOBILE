@@ -3,6 +3,7 @@ import { Platform,StyleSheet,Text,View ,DeviceEventEmitter,AsyncStorage } from '
 import { Scene, Router ,Actions } from 'react-native-router-flux';
 import Login from './component/login';
 import Changepassword from './component/Changepassword';
+import Qrcode from './component/Qrcode';
 import Shipment from './component/Shipment';
 import SearchMessage from './component/SearchMessage';
 import AllMessage from './component/AllMessage';
@@ -42,6 +43,7 @@ class Route extends Component{
 	    <Scene key='Route'>
 	        <Scene hideNavBar key='Login' component={Login} title="用户登录"  titleStyle={{color:'#eee'}} initial={true}/>
 
+<<<<<<< HEAD
           <Scene key='Changepassword' component={Changepassword} title="修改密码"  titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
 
 	        <Scene key='Shipment' component={Shipment} title="发货清单" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
@@ -69,6 +71,15 @@ class Route extends Component{
           <Scene key='chexiaomouyigee'  component={chexiaomouyigee} hideNavBar title="撤销" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
 
           <Scene key='chuyunyuan'  component={chuyunyuan} hideNavBar title="储运员" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} rightTitle="退出" onRight={() => this.tuichu()} />
+=======
+          <Scene key='Changepassword' component={Changepassword} title="修改密码"  titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} />
+
+          <Scene key='Qrcode' component={Qrcode} title="扫描二维码"  titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} />
+
+	        <Scene key='Shipment' component={Shipment} title="待发货清单"  titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} />
+
+          <Scene key='Message' component={Message} title="关联发货单" titleStyle={{color:'#eee'}} navBarButtonColor='#eee' navigationBarStyle={{backgroundColor:'#444'}} />
+>>>>>>> 3e5e055344928e2966b881d537b75ca90c7fd52f
 	    </Scene>
     </Router>
     );

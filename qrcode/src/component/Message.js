@@ -45,7 +45,6 @@ class Message extends React.Component{
         invoiceShipmentListlength:''
       };
     }
- 
     componentDidMount(){
       //alert(this.props.listindex.id)
       axios.get(`${url}/Invoice/get/${this.props.listindex.id}`)
@@ -240,6 +239,7 @@ class Message extends React.Component{
       })
       
     }
+
   render(){
     return(
       <ScrollView style={styles.flexbox}>
@@ -269,8 +269,6 @@ class Message extends React.Component{
               <View style={styles.items}><Text style={styles.fontwidths}>车牌号</Text><Text style={styles.inputwidth}>
                   {this.state.PlateNumber}
               </Text></View>
-
-
               <View style={styles.items}><Text style={styles.fontwidths}>司机名</Text><Text style={styles.inputwidth}>
                   {this.state.DriverName }
               </Text></View>
@@ -502,7 +500,6 @@ const styles={
     }
  
   
-
 }
 
 export default Message
