@@ -61,8 +61,7 @@ class myundata extends React.Component{
       };
     }
     
-    componentWillUnMount(){
-      //alert('componentWillUnMount')
+    componentWillUnmount(){
       this.listener.remove()
       //alert('我的未完成1')
     }
@@ -124,136 +123,47 @@ class myundata extends React.Component{
                 countss.push(scanres);
             let countssets=new Set(countss);
             let countarrays=Array.from(countssets);
-            let newcountarrays=countarrays;
-            
-            this.setState({ SCANSs: newcountarrays });
+            let newcountarrays=countarrays;            
+            // this.setState({ SCANSs: newcountarrays });
             if (newcountarrays.length==0) {
               this.setState({
                 alert:'没有二维码'
-              })
-              
+              })              
               return false;
             }else{
-              this.setState({
-              alert:'扫到二维码',
-              CodeList:newcountarrays
-             })
 
-             let data={
-              CodeList:this.state.CodeList,
-              id:this.props.fahuodanid,
-              userInfoID:this.props.userInfoIDD,
-              //id:this.props.fayundanID
-             }
-             //alert(this.props.fahuodanid)
+            //   this.setState({
+            //   alert:'扫到二维码',
+            //   CodeList:newcountarrays
+            //  })
 
-            //if(this.state.CodeList.length==1&&data!=null){
-              
-                  axios.post(`${url}/Invoice/UpdateQRcode`,data)
-                     .then(res=>{
-                         
-                        
-                         let abc=res.data.message
-                         switch(abc){
-                           case "网兜扫描成功":message='网兜扫描成功';break;
-                           case "此交货单没有装运物料！":message='此交货单没有装运物料！';break;
-                           case "此二维码不存在！":message='此二维码不存在！';break;
-                           case "网兜重复扫描！":message='网兜重复扫描！';break;
-                           case "网兜已被扫描！":message='网兜已被扫描！';break;
-                           case "该品类已经发运完成，请勿多扫！":message='该品类已经发运完成，请勿多扫！';break;
-                           case "该订单装运项目已经发运完成！":message='该订单装运项目已经发运完成！';break;
-                           case "此网兜所属物料与交货单的装运项目不符！":message='此网兜所属物料与交货单的装运项目不符！';break;
-
-                         } 
-                       
-                       
-                       
-                         if(message=="网兜扫描成功" || message=="该订单装运项目已经发运完成！"){
-                             
-                               //提示音
-                               const s = new Sound(demoAudio, (e) => {
-                                   if (e) {
-                                       console.log('播放失败');
-                                       return;
-                                   }
-                                   s.play(() => s.release());
-                               });
-
-                               //提示弹窗
-                               
-                                 Alert.alert(
-                                     '提示',
-                                     message,
-                                     [
-                                       // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                       // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                       {text: '确定', onPress: () => console.log('OK Pressed')},
-                                     ],
-                                     { cancelable: false }
-                                   )
-                                   
-                             
-                       
-                           }else{
-                                 //提示弹窗
-                                 if(message!=""){
-                                   Alert.alert(
-                                       '提示',
-                                       message,
-                                       [
-                                         // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                         // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                         {text: '确定', onPress: () => console.log('OK Pressed')},
-                                       ],
-                                       { cancelable: false }
-                                     )
-                                   }
-                                   
-                           }
-
-                           
-                           
-
-                         
-
-                             this.setState({
-                                 count:res.data.invoice.codeList.length==0?0:res.data.invoice.codeList.length,
-                                 countcounts:res.data.invoice.groupNoList.length==0?0:res.data.invoice.groupNoList.length
-                             })
-                            
-
-                        }
-                   )
-                   .catch(err=>{
-                     //alert(error)
-                    //  Alert.alert(
-                    //    '提示',
-                    //    '您的网络不好1111',
-                    //    [
-                    //      // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                    //      // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                    //      {text: '确定', onPress: () => console.log('OK Pressed')},
-                    //    ],
-                    //    { cancelable: false }
-                    //  )
-                   })
-                 
-                 //}
-            //  }else{
-            //    alert('未扫到二维码')
-            //  }
+            let qr="";
+              let qrcodeTime="";
+              AsyncStorage.getItem('qrcodeTime',(error,tm)=>{
+                if(tm){
+                  qrcodeTime=tm; 
+                }
+              })
+              AsyncStorage.getItem('qr',(error,qrc)=>{
+                if(qrc){
+                  qr=qrc; 
+                }
+              })
+              if(qr==""||qr!=newcountarray){
+                  AsyncStorage.setItem('qrcode',newcountarray,(e)=>{})//存记录
+                  AsyncStorage.setItem('qrcodeTime',(new Date().getTime()),(er)=>{})
+                  console.log("qrcode"+newcountarray);
+                  console.log("qrcodeTime"+new Date().getTime());
+                  this.sendQrcode(newcountarray);
+              }else if(qr==newcountarray){
+                let ctime=new Date().getTime();
+                if(ctime-qrcodeTime>3000){
+                  this.sendQrcode(newcountarray);
+                }
+              }
 
 
-
-
-
-
-
-
-
-
-
-
+            
               }
             
             
@@ -273,7 +183,103 @@ class myundata extends React.Component{
 
       }
 
-     
+     sendQrcode(qrcode){
+      let data={
+        CodeList:qrcode,
+        id:this.props.fahuodanid,
+        userInfoID:this.props.userInfoIDD,
+        //id:this.props.fayundanID
+       }
+       //alert(this.props.fahuodanid)
+
+      //if(this.state.CodeList.length==1&&data!=null){
+        
+            axios.post(`${url}/Invoice/UpdateQRcode`,data)
+               .then(res=>{  
+                   let abc=res.data.message
+                   switch(abc){
+                     case "网兜扫描成功":message='网兜扫描成功';break;
+                     case "此交货单没有装运物料！":message='此交货单没有装运物料！';break;
+                     case "此二维码不存在！":message='此二维码不存在！';break;
+                     case "网兜重复扫描！":message='网兜重复扫描！';break;
+                     case "网兜已被扫描！":message='网兜已被扫描！';break;
+                     case "该品类已经发运完成，请勿多扫！":message='该品类已经发运完成，请勿多扫！';break;
+                     case "该订单装运项目已经发运完成！":message='该订单装运项目已经发运完成！';break;
+                     case "此网兜所属物料与交货单的装运项目不符！":message='此网兜所属物料与交货单的装运项目不符！';break;
+
+                   } 
+                 
+                 
+                 
+                   if(message=="网兜扫描成功" || message=="该订单装运项目已经发运完成！"){
+                       
+                         //提示音
+                         const s = new Sound(demoAudio, (e) => {
+                             if (e) {
+                                 console.log('播放失败');
+                                 return;
+                             }
+                             s.play(() => s.release());
+                         });
+
+                         //提示弹窗
+                         
+                           Alert.alert(
+                               '提示',
+                               message,
+                               [
+                                 // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                                 // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                                 {text: '确定', onPress: () => console.log('OK Pressed')},
+                               ],
+                               { cancelable: false }
+                             )
+                             
+                       
+                 
+                     }else{
+                           //提示弹窗
+                           if(message!=""){
+                             Alert.alert(
+                                 '提示',
+                                 message,
+                                 [
+                                   // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                                   // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                                   {text: '确定', onPress: () => console.log('OK Pressed')},
+                                 ],
+                                 { cancelable: false }
+                               )
+                             }
+                             
+                     }
+                       this.setState({
+                           count:res.data.invoice.codeList.length==0?0:res.data.invoice.codeList.length,
+                           countcounts:res.data.invoice.groupNoList.length==0?0:res.data.invoice.groupNoList.length
+                       })
+                      
+
+                  }
+             )
+             .catch(err=>{
+               //alert(error)
+              //  Alert.alert(
+              //    '提示',
+              //    '您的网络不好1111',
+              //    [
+              //      // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+              //      // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              //      {text: '确定', onPress: () => console.log('OK Pressed')},
+              //    ],
+              //    { cancelable: false }
+              //  )
+             })
+           
+           //}
+      //  }else{
+      //    alert('未扫到二维码')
+      //  }
+     }
 
 
       myundataUpdateQRcode(){

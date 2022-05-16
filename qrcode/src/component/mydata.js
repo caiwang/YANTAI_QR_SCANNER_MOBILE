@@ -135,128 +135,15 @@ class mydata extends React.Component{
             let countsset=new Set(counts);
             let countarray=Array.from(countsset);
             let newcountarray=countarray;
-            this.setState({ SCANS: newcountarray });
+            console.log(newcountarray);
+            // this.setState({ SCANS: newcountarray });
             if (newcountarray.length==0) {
                this.setState({
                 alert:'没有二维码'
               })
               return false;
             }else{
-              this.setState({
-               alert:'扫到二维码',
-               CodeList:newcountarray
-              })
-
-              let data={
-                CodeList:this.state.CodeList,
-                id:this.props.fahuodanid,
-                userInfoID:this.props.userInfoIDD
-              }
-              //if(this.state.CodeList.length!=0&&data!=null){
-
-                  axios.post(`${url}/Invoice/UpdateQRcode`,data)
-                    .then(res=>{
-                      
-
-                      let abc=res.data.message
-                      switch(abc){
-                        case "网兜扫描成功":message='网兜扫描成功';break;
-                        case "此交货单没有装运物料！":message='此交货单没有装运物料！';break;
-                        case "此二维码不存在！":message='此二维码不存在！';break;
-                        case "网兜重复扫描！":message='网兜重复扫描！';break;
-                        case "网兜已被扫描！":message='网兜已被扫描！';break;
-                        case "该品类已经发运完成，请勿多扫！":message='该品类已经发运完成，请勿多扫！';break;
-                        case "该订单装运项目已经发运完成！":message='该订单装运项目已经发运完成！';break;
-                        case "此网兜所属物料与交货单的装运项目不符！":message='此网兜所属物料与交货单的装运项目不符！';break;
-
-                      } 
-                      
-                      
-                      
-                      
-                      
-                      if(message=="网兜扫描成功" || message=="该订单装运项目已经发运完成！"){
-                          
-                            //提示音
-                            const s = new Sound(demoAudio, (e) => {
-                                if (e) {
-                                    console.log('播放失败');
-                                    return;
-                                }
-                                s.play(() => s.release());
-                            });
-
-
-                            //提示弹窗
-                              
-                                Alert.alert(
-                                    '提示',
-                                    message,
-                                    [
-                                      // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                      // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                      {text: '确定', onPress: () => console.log('OK Pressed')},
-                                    ],
-                                    { cancelable: false }
-                                  )
-                                
-                        
-                        
-                      }else{
-                          //提示弹窗
-                            if(message!=""){
-                              Alert.alert(
-                                  '提示',
-                                  message,
-                                  [
-                                    // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                                    // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                    {text: '确定', onPress: () => console.log('OK Pressed')},
-                                  ],
-                                  { cancelable: false }
-                                )
-                              }
-                      }
-
-                      
-
-
-
-                      this.setState({
-                        count:res.data.invoice ? (res.data.invoice.codeList.length==0?0:res.data.invoice.codeList.length) :'',
-                        countcounts:res.data.invoice ? (res.data.invoice.groupNoList.length==0?0:res.data.invoice.groupNoList.length) :''
-                      })
-                      
-                    
-
-                    }
-                  )
-                  .catch(err=>{
-                    //alert(err)
-                    // Alert.alert(
-                    //   '提示',
-                    //   '您的网络不好1111',
-                    //   [
-                    //     // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                    //     // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                    //     {text: '确定', onPress: () => console.log('OK Pressed')},
-                    //   ],
-                    //   { cancelable: false }
-                    // )
-                  })
-
-                  //}
-
-                  // }else{
-                  //   alert('未扫到二维码')
-                  // }
-
-
-
-
-
-
-
+              this.sendQrcode(newcountarray);
               }
             
         });
@@ -276,7 +163,106 @@ class mydata extends React.Component{
       }
 
 
+    sendQrcode(qrcode){     
 
+       let data={
+         CodeList:qrcode,
+         id:this.props.fahuodanid,
+         userInfoID:this.props.userInfoIDD
+       }
+
+           axios.post(`${url}/Invoice/UpdateQRcode`,data)
+             .then(res=>{
+               if(res.data!=null&&res.data.message!=""){
+               let abc=res.data.message
+               switch(abc){
+                 case "网兜扫描成功":message='网兜扫描成功';break;
+                 case "此交货单没有装运物料！":message='此交货单没有装运物料！';break;
+                 case "此二维码不存在！":message='此二维码不存在！';break;
+                 case "网兜重复扫描！":message='网兜重复扫描！';break;
+                 case "网兜已被扫描！":message='网兜已被扫描！';break;
+                 case "该品类已经发运完成，请勿多扫！":message='该品类已经发运完成，请勿多扫！';break;
+                 case "该订单装运项目已经发运完成！":message='该订单装运项目已经发运完成！';break;
+                 case "此网兜所属物料与交货单的装运项目不符！":message='此网兜所属物料与交货单的装运项目不符！';break;
+
+               }                        
+               if(message=="网兜扫描成功" || message=="该订单装运项目已经发运完成！"){
+              
+                     //提示音
+                     const s = new Sound(demoAudio, (e) => {
+                         if (e) {
+                             console.log('播放失败');
+                             return;
+                         }
+                         s.play(() => s.release());
+                     });
+
+
+                     //提示弹窗
+                       
+                         Alert.alert(
+                             '提示',
+                             message,
+                             [
+                               // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                               // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                               {text: '确定', onPress: () => console.log('OK Pressed')},
+                             ],
+                             { cancelable: false }
+                           )
+                         
+                 
+                 
+               }else{
+                   //提示弹窗
+                     if(message!=""){
+                       Alert.alert(
+                           '提示',
+                           message,
+                           [
+                             // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                             // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                             {text: '确定', onPress: () => console.log('OK Pressed')},
+                           ],
+                           { cancelable: false }
+                         )
+                       }
+               }
+
+               
+
+
+
+               this.setState({
+                 count:res.data.invoice ? (res.data.invoice.codeList.length==0?0:res.data.invoice.codeList.length) :'',
+                 countcounts:res.data.invoice ? (res.data.invoice.groupNoList.length==0?0:res.data.invoice.groupNoList.length) :0
+               })
+               
+             
+
+             }
+            }
+           )
+           .catch(err=>{
+             //alert(err)
+             // Alert.alert(
+             //   '提示',
+             //   '您的网络不好1111',
+             //   [
+             //     // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+             //     // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+             //     {text: '确定', onPress: () => console.log('OK Pressed')},
+             //   ],
+             //   { cancelable: false }
+             // )
+           })
+
+           
+
+           // }else{
+           //   alert('未扫到二维码')
+           // }
+    }
    
 
 
@@ -308,7 +294,7 @@ class mydata extends React.Component{
       cxsx(){
         this.setState({
           Loading:true,
-          countcounts:''
+          countcounts:0
         })
         axios.get(`${url}/Invoice/get/${this.props.fahuodanid}`)
       .then(res=>{
@@ -897,7 +883,7 @@ class mydata extends React.Component{
                 
             </View>
             {
-              this.state.countcounts>1?
+              this.state.countcounts>0?
               <View>
                 <View style={styles.adminn}>
                   <Text style={styles.adminbtnntext} onPress={this.chexiaozuihouyige.bind(this)}>撤销最后一兜</Text>

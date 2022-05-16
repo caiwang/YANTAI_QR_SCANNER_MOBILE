@@ -66,7 +66,7 @@ class mydata extends React.Component{
 // shouldComponentUpdate(){
 //   Subscription.remove()
 // }
-    componentWillUnMount(){
+    componentWillUnmount(){
       this.listener.remove();
       // this.listenerA.remove();
 

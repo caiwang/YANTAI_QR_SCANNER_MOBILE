@@ -21,16 +21,16 @@ class Login extends React.Component{
   componentDidMount(){
     
     
-          // AsyncStorage.getItem('admin',(error,result)=>{
-          //   this.setState({admin:result})
-          // })
-          // AsyncStorage.getItem('password',(error,result)=>{
-          //   this.setState({password:result})
-          // })
-          // // alert(this.state.admin)
-          // if (this.state.admin=="" || this.state.password=="") {
-          //     this.setState({checked:false})
-          // };
+          AsyncStorage.getItem('admin',(error,result)=>{
+            this.setState({admin:result})
+          })
+          AsyncStorage.getItem('password',(error,result)=>{
+            this.setState({password:result})
+          })
+          // alert(this.state.admin)
+          if (this.state.admin=="" || this.state.password=="") {
+              this.setState({checked:false})
+          };
         
   }
 
@@ -116,24 +116,26 @@ class Login extends React.Component{
   changepassword(){
      Actions.Changepassword()
   }
-  // checkbox(){
-  //   this.setState({
-  //     checked:!this.state.checked
-  //   })
-  
-  //   if(this.state.checked==true){
-  //       AsyncStorage.setItem('admin',this.state.admin,(error)=>{
-  //       })
-  //       AsyncStorage.setItem('password',this.state.password,(error)=>{
-  //       })
-  //     }else{
-  //        AsyncStorage.removeItem('admin',(error,result)=>{
-  //         })
-  //         AsyncStorage.removeItem('password',(error,result)=>{
-  //         })
-  //     }
- 
-  // }
+  checkbox(){      
+      let flag=!this.state.checked;        
+        console.log(flag)
+        if(flag){
+           global.username=this.state.user
+           global.password=this.state.password
+
+           AsyncStorage.setItem('admin', this.state.admin, function (error) {console.log(error);})
+           AsyncStorage.setItem('password', this.state.password, function (error) {console.log(error);})
+        }else{
+            AsyncStorage.removeItem('admin',(error,result)=>{
+                //console.log(result)
+            })
+            AsyncStorage.removeItem('password',(error,result)=>{
+                                    //console.log(result)
+                                })
+            
+        }
+        this.setState({checked:flag})
+  }
   render(){
     let {admin,password,alert,showhide,autoFocus}=this.state
     return(
@@ -171,7 +173,7 @@ class Login extends React.Component{
         </View>
         
         <View style={styles.admin}>
-      {/*
+      
           <CheckBox
               label='记住密码'
               checked={this.state.checked}
@@ -179,7 +181,7 @@ class Login extends React.Component{
               checkboxStyle={{width:20,height:20,borderColor:'#4ea3f1'}}
               onChange={ this.checkbox.bind(this)}>
           </CheckBox>
-          */}
+         
         </View>
         
 

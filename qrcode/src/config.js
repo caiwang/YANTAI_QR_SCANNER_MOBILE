@@ -2,8 +2,8 @@ const url='http://47.92.96.119/api'
 //const url='http://192.168.40.31:1460/api'
 //const url='http://192.168.1.142:1460/api'
 //const url='http://127.0.0.0:1460/api'
-//const url='http://192.168.43.172:1460/api'
-//const url='http://47.92.96.119:1555/api'
+// const url='http://10.200.65.190:1460/api'
+// const url='http://47.92.94.40/api'
 
 export {url}
 // dysoft.bclzdd.com
