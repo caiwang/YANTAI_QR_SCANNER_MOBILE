@@ -106,8 +106,7 @@ public class ScanToastModule extends ReactContextBaseJavaModule {
             if(keyDown&&!mIsPressed){
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_F1:
-                        Util.play(1,0);
-                        break;
+
                     case KeyEvent.KEYCODE_F2:
 
                     case KeyEvent.KEYCODE_F3:

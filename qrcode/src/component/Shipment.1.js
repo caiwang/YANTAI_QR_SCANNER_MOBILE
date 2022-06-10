@@ -837,38 +837,74 @@ class Shipment extends React.Component{
                         {
                           this.state.waitdatalistshow?
                           this.state.datalist.map((item,index)=>{
-                            return(
-                            <View style={styles.itemss} key={index}>
-                            <CheckBox
-                                label=''
-                                checked={item.checked}
-                                checkboxStyle={{width:50,height:50,borderColor:'#4ea3f1'}}
-                                onChange={this.checkbox.bind(this,index,item)}
+                            return (
+                              <View style={styles.itemss} key={index}>
+                                <CheckBox
+                                  label=""
+                                  checked={item.checked}
+                                  checkboxStyle={{
+                                    width: 50,
+                                    height: 50,
+                                    borderColor: "#4ea3f1",
+                                  }}
+                                  onChange={this.checkbox.bind(
+                                    this,
+                                    index,
+                                    item
+                                  )}
+                                ></CheckBox>
+                                <Text style={styles.font} numberOfLines={2}>
+                                  {index + 1}.车牌{item.plateNumber}订单
+                                  {item.no}
+                                </Text>
+                                <Text
+                                  style={styles.fontxiangxi}
+                                  onPress={this.QRcode.bind(this, index, item)}
+                                  numberOfLines={1}
                                 >
-                            </CheckBox>
-                                <Text style={styles.font}  numberOfLines={2}>{index+1}.车牌{item.plateNumber}订单{item.no}</Text>
-                                <Text style={styles.fontxiangxi} onPress={this.QRcode.bind(this,index,item)} numberOfLines={1}>详细信息</Text>
-                            </View>
-                            )
+                                  详情
+                                </Text>
+                              </View>
+                            );
                           }):null
                         }
                         {/*这里未完成发货单*/}
                         {
                           this.state.unfinishdatalistshow?
                           this.state.datalist.map((item,index)=>{
-                            return(
-                            <View style={styles.itemss} key={index}>
+                            return (
+                              <View style={styles.itemss} key={index}>
                                 <CheckBox
-                                    label=''
-                                    checked={item.checked}
-                                    checkboxStyle={{width:50,height:50,borderColor:'#4ea3f1'}}
-                                    onChange={this.checkboxweiwancheng.bind(this,index,item)}
-                                    >
-                                </CheckBox>
-                                <Text style={styles.font}  numberOfLines={2}>{index+1}.车牌{item.plateNumber}订单{item.no}</Text>
-                                <Text style={styles.fontxiangxi} onPress={this.UnFinishQRcode.bind(this,index,item)} numberOfLines={1}>详细信息</Text>
-                            </View>
-                            )
+                                  label=""
+                                  checked={item.checked}
+                                  checkboxStyle={{
+                                    width: 50,
+                                    height: 50,
+                                    borderColor: "#4ea3f1",
+                                  }}
+                                  onChange={this.checkboxweiwancheng.bind(
+                                    this,
+                                    index,
+                                    item
+                                  )}
+                                ></CheckBox>
+                                <Text style={styles.font} numberOfLines={2}>
+                                  {index + 1}.车牌{item.plateNumber}订单
+                                  {item.no}
+                                </Text>
+                                <Text
+                                  style={styles.fontxiangxi}
+                                  onPress={this.UnFinishQRcode.bind(
+                                    this,
+                                    index,
+                                    item
+                                  )}
+                                  numberOfLines={1}
+                                >
+                                  详情
+                                </Text>
+                              </View>
+                            );
                           }):null
                         }
                         {/*这里完成发货单*/}
@@ -925,19 +961,40 @@ class Shipment extends React.Component{
 
                           this.state.mydatalistshow?
                           this.state.datalist.map((item,index)=>{
-                            return(
-                            <View style={styles.itemss} key={index}>
-                            <CheckBox
-                                label=''
-                                checked={item.checked}
-                                checkboxStyle={{width:50,height:50,borderColor:'#4ea3f1'}}
-                                onChange={this.checkboxcancel.bind(this,index,item)}
+                            return (
+                              <View style={styles.itemss} key={index}>
+                                <CheckBox
+                                  label=""
+                                  checked={item.checked}
+                                  checkboxStyle={{
+                                    width: 50,
+                                    height: 50,
+                                    borderColor: "#4ea3f1",
+                                  }}
+                                  onChange={this.checkboxcancel.bind(
+                                    this,
+                                    index,
+                                    item
+                                  )}
+                                ></CheckBox>
+                                <Text style={styles.font} numberOfLines={2}>
+                                  {index + 1}.车牌{item.plateNumber}订单
+                                  {item.no}
+                                </Text>
+                                <Text
+                                  style={styles.fontxiangxi}
+                                  onPress={this.myQRcode.bind(
+                                    this,
+                                    index,
+                                    item,
+                                    "wodedaifayun"
+                                  )}
+                                  numberOfLines={1}
                                 >
-                            </CheckBox>
-                                <Text style={styles.font}  numberOfLines={2}>{index+1}.车牌{item.plateNumber}订单{item.no}</Text>
-                                <Text style={styles.fontxiangxi} onPress={this.myQRcode.bind(this,index,item,'wodedaifayun')} numberOfLines={1}>详细信息</Text>
-                            </View>
-                            )
+                                  详情
+                                </Text>
+                              </View>
+                            );
                           }):null
                         }
 
@@ -945,23 +1002,41 @@ class Shipment extends React.Component{
                         {
                           this.state.myundatalistshow?
                           this.state.datalist.map((item,index)=>{
-                            return(
-                            <View style={styles.itemss} key={index}>
-                          
-                            <CheckBox
-                                label=''
-                                checked={item.checked}
-                                checkboxStyle={{width:50,height:50,borderColor:'#4ea3f1'}}
-                                onChange={this.checkboxwodeweiwancheng.bind(this,index,item)
-                                }
+                            return (
+                              <View style={styles.itemss} key={index}>
+                                <CheckBox
+                                  label=""
+                                  checked={item.checked}
+                                  checkboxStyle={{
+                                    width: 50,
+                                    height: 50,
+                                    borderColor: "#4ea3f1",
+                                  }}
+                                  onChange={this.checkboxwodeweiwancheng.bind(
+                                    this,
+                                    index,
+                                    item
+                                  )}
+                                ></CheckBox>
+
+                                <Text style={styles.font} numberOfLines={2}>
+                                  {index + 1}.车牌{item.plateNumber}订单
+                                  {item.no}
+                                </Text>
+                                <Text
+                                  style={styles.fontxiangxi}
+                                  onPress={this.myunQRcode.bind(
+                                    this,
+                                    index,
+                                    item,
+                                    "wodeweiwancheng"
+                                  )}
+                                  numberOfLines={1}
                                 >
-                            </CheckBox>
-                          
-                            
-                                <Text style={styles.font}  numberOfLines={2}>{index+1}.车牌{item.plateNumber}订单{item.no}</Text>
-                                <Text style={styles.fontxiangxi} onPress={this.myunQRcode.bind(this,index,item,'wodeweiwancheng')} numberOfLines={1}>详细信息</Text>
-                            </View>
-                            )
+                                  详情
+                                </Text>
+                              </View>
+                            );
                           }):null
                         }
                       
